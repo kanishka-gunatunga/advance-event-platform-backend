@@ -1,5 +1,5 @@
 import express from 'express';
-import { login, customerRegister,organizationRegister, venueRegister, updateProfileSettings, updateSecuritySettings,bookingHistory,paymentHistory,getUserDetails,forgotPassword,
+import { login, customerRegister,organizationRegister, venueRegister,marketingRegister, updateProfileSettings, updateSecuritySettings,bookingHistory,paymentHistory,getUserDetails,forgotPassword,
 validateOtp, resetPassword,resendOtp } from '../../controllers/api/userController';
 import { getAllEvents,getTrendingEvents,getUpcomingEvents,getEventDetails,getEventSeats,getLocations,getArtists } from '../../controllers/api/eventController';
 import { checkout} from '../../controllers/api/checkoutController';
@@ -11,6 +11,7 @@ const router = express.Router();
 router.post('/customer-register', customerRegister);
 router.post('/organization-register', organizationRegister);
 router.post('/venue-register', venueRegister);
+router.post('/marketing-register', marketingRegister);
 router.post('/login', login);
 router.post('/forgot-password', forgotPassword);
 router.post('/validate-otp', validateOtp);
