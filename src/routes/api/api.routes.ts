@@ -1,6 +1,6 @@
 import express from 'express';
-import { login, customerRegister,organizationRegister, venueRegister,marketingRegister,artistRegister, updateProfileSettings, updateSecuritySettings,bookingHistory,paymentHistory,getUserDetails,forgotPassword,
-validateOtp, resetPassword,resendOtp } from '../../controllers/api/userController';
+import { login, customerRegister,organizationRegister, venueRegister,marketingRegister,artistRegister, googleAuth, updateProfileSettings,
+updateSecuritySettings,bookingHistory,paymentHistory,getUserDetails,forgotPassword, validateOtp, resetPassword,resendOtp } from '../../controllers/api/userController';
 import { getAllEvents,getTrendingEvents,getUpcomingEvents,getEventDetails,getEventSeats,getLocations,getArtists } from '../../controllers/api/eventController';
 import { checkout} from '../../controllers/api/checkoutController';
 import { selectSeat,resetSeats,unselectSeat} from '../../controllers/api/seatController';
@@ -40,6 +40,9 @@ router.post('/unselect-seat', unselectSeat);
 
 //Checkout
 router.post('/checkout', checkout);
+
+//Google Auth
+router.post('/auth/google', googleAuth);
 
 
 export default router;

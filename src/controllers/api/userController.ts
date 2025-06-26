@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../../prisma/client';
 import bcrypt from 'bcrypt';
+import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import transporter from '../../services/mailTransporter';
@@ -8,6 +9,8 @@ import ejs from 'ejs';
 import path from 'path';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 export const customerRegister = async (req: Request, res: Response) => {
     const schema = z
@@ -429,6 +432,145 @@ export const artistRegister = async (req: Request, res: Response) => {
   } catch (err) {
     console.error('Registration error:', err);
     return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export const googleAuth = async (req: Request, res: Response) => {
+  const result = req.body;
+
+  if (!result.success) {
+    return res.status(400).json({
+      message: 'Invalid input for Google Auth',
+      errors: result.error.flatten().fieldErrors,
+    });
+  }
+
+  const { id_token, user_type } = result;
+
+  try {
+    if (!GOOGLE_CLIENT_ID) {
+      throw new Error("GOOGLE_CLIENT_ID is not defined in environment variables.");
+    }
+    const ticket = await client.verifyIdToken({
+      idToken: id_token,
+      audience: GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) {
+      return res.status(401).json({ message: 'Failed to verify Google ID token or email not found.' });
+    }
+
+    const email = payload.email;
+    const firstName = payload.given_name || '';
+    const lastName = payload.family_name || '';
+    const name = payload.name || ''; // Full name
+
+    let user = await prisma.user.findUnique({ where: { email } });
+
+    if (user) {
+
+      const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1d' });
+
+      return res.json({
+        message: 'User login successfully via Google.',
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+        },
+      });
+
+    }
+
+    let userRole: number;
+
+    if (user_type === 'customer') {
+      userRole = 2; 
+    } else if (user_type === 'organization') {
+      userRole = 3; 
+    } else if (user_type === 'venue') {
+      userRole = 4;
+    } else if (user_type === 'marketing') {
+      userRole = 5;
+    } else if (user_type === 'artist') {
+      userRole = 6;
+    } else {
+      return res.status(400).json({ message: 'Invalid user_type provided.' });
+    }
+
+    user = await prisma.user.create({
+      data: {
+        email,
+        user_role: userRole,
+        is_verified: 1,
+        otp: null,
+        otp_expires_at: null,
+        status: 'active',
+      },
+    });
+
+    if (user_type === 'customer') {
+      await prisma.customerDetails.create({
+      data: {
+        user_id: user.id,
+        first_name: firstName,
+        last_name: lastName,
+      },
+    });
+    } else if (user_type === 'organization') {
+      await prisma.organizationDetails.create({
+      data: {
+        user_id: user.id,
+        organization_name: name || `${firstName} ${lastName}'s Organization`,
+      },
+    });
+    }
+    else if (user_type === 'venue') {
+      await prisma.venueDetails.create({
+      data: {
+        user_id: user.id,
+        venue_name: name || `${firstName} ${lastName}'s Organization`,
+      },
+    });
+    }
+    else if (user_type === 'marketing') {
+      const referral_code = generateReferralCode(user.id);
+      await prisma.marketingDetails.create({
+        data: {
+          user_id: user.id,
+          first_name: firstName,
+          last_name: lastName,
+          referral_code
+        },
+      });
+    }
+    else if (user_type === 'artist') {
+      await prisma.artistDetails.create({
+      data: {
+        user_id: user.id,
+        artist_name: name || `${firstName} ${lastName}'s Organization`,
+      },
+      });
+    }
+
+    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1d' });
+
+      return res.json({
+        message: 'User registered successfully via Google.',
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+        },
+      });
+
+  } catch (err: any) {
+    console.error('Google Auth error:', err);
+    if (err.message.includes('No pem found for certificate')) {
+        return res.status(401).json({ message: 'Google ID token verification failed. Ensure GOOGLE_CLIENT_ID is correct and the token is valid.' });
+    }
+    return res.status(500).json({ message: 'Internal server error during Google authentication.' });
   }
 };
 
