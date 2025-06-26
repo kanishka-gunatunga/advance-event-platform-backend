@@ -846,31 +846,76 @@ export const getUserDetails = async (req: Request, res: Response) => {
   const userId = parseInt(req.params.id);
 
   const user = await prisma.user.findUnique({
-    where: { id: userId },
-    include: { customerserDetails: true },
+    where: { id: userId }
   });
 
   if (!user) {
     return res.status(400).json({ message: 'User not found' });
   }
+  
+  let userDetails: any = {
+      id: user.id,
+      email: user.email,
+      createdAt: user.createdAt,
+  };
 
-  return res.json({
-    id: user.id,
-    email: user.email,
-    createdAt: user.createdAt,
-    customerserDetails: {
-      first_name: user.customerserDetails?.first_name,
-      last_name: user.customerserDetails?.last_name,
-      contact_number: user.customerserDetails?.contact_number,
-      nic_passport: user.customerserDetails?.nic_passport,
-      country: user.customerserDetails?.country,
-      gender: user.customerserDetails?.gender,
-      dob: user.customerserDetails?.dob,
-      address_line1: user.customerserDetails?.address_line1,
-      address_line2: user.customerserDetails?.address_line2,
-      city: user.customerserDetails?.city,
+  switch (user.user_role) {
+      case 2: 
+        const customerDetails = await prisma.customerDetails.findUnique({
+          where: {
+            user_id: user.id,
+          },
+        });
+        if (customerDetails) {
+          userDetails = { ...userDetails, ...customerDetails };
+        }
+        break;
+      case 3:
+        const organizationDetails = await prisma.organizationDetails.findUnique({
+          where: {
+            user_id: user.id,
+          },
+        });
+        if (organizationDetails) {
+          userDetails = { ...userDetails, ...organizationDetails };
+        }
+        break;
+      case 4: 
+        const venueDetails = await prisma.venueDetails.findUnique({
+          where: {
+            user_id: user.id,
+          },
+        });
+        if (venueDetails) {
+          userDetails = { ...userDetails, ...venueDetails };
+        }
+        break;
+      case 5: 
+        const marketingDetails = await prisma.marketingDetails.findUnique({
+          where: {
+            user_id: user.id,
+          },
+        });
+        if (marketingDetails) {
+          userDetails = { ...userDetails, ...marketingDetails };
+        }
+        break;
+      case 6: 
+        const artistDetails = await prisma.artistDetails.findUnique({
+          where: {
+            user_id: user.id,
+          },
+        });
+        if (artistDetails) {
+          userDetails = { ...userDetails, ...artistDetails };
+        }
+        break;  
+      default:
+   
+        break;
     }
-  });
+    return res.status(200).json(userDetails);
+
 };
 
 export const forgotPassword = async (req: Request, res: Response) => {
