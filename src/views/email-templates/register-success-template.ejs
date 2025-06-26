@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Successful - Welcome!</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        p {
+            margin-bottom: 10px;
+        }
+        .contact-info {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #555;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #777;
+        }
+        .logo-container {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .logo-container img {
+            width: 200px; 
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <img src="https://quick-seats-backend.vercel.app/assets/images/quickseatslogo.png" alt="Company Logo">
+        </div>
+        <h2>Registration Successful!</h2>
+        <p>Hello <%= first_name %>,</p>
+        <p>Your account has been successfully verified using the OTP.</p>
+        <p>Welcome to <strong>Quick Tickets</strong> — we're thrilled to have you with us!</p>
+        <p>You can now log in to your account and start exploring exciting events and booking your tickets.</p>
+        <p>If you ever need help or have any questions, feel free to contact our support team anytime.</p>
+        <hr>
+        <div class="contact-info">
+            <p>For support, contact us at: <a href="mailto:info@quickseats.lk">info@quickseats.lk</a> or call us at 011121451242</p>
+            <p>Read our <a href="#" target="_blank">Privacy Policy</a></p>
+        </div>
+        <div class="footer">
+            <p>&copy; <%= new Date().getFullYear() %> Quick Tickets. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

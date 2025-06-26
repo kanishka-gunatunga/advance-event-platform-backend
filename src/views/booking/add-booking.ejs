@@ -1,0 +1,767 @@
+<%- include('../layouts/header.ejs') %>
+<style>
+svg{
+width: 100%;
+height: auto; 
+}
+</style>
+<div class="content-page">
+                <div class="content">
+
+                    <div class="container-fluid">
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h4 class="header-title">Add Booking</h4>
+
+                                                <form class="mt-4" method="POST" action="/add-booking">
+                                                    <% if (success) { %>
+                                                        <div class="alert alert-success"><%= success %></div>
+                                                    <% } %>
+                                                    <% if (error) { %>
+                                                        <div class="alert alert-danger"><%= error %></div>
+                                                    <% } %>
+
+                                                    <div class="row">
+                                                        <div class="col-md-4 mb-3">
+                                                        <label class="form-label">Customer</label>
+                                                        <select class="form-control" data-toggle="select2" name="customer" id="customerSelect" data-width="100%">
+                                                                <option value="guest">Guest</option>
+                                                                <% customers.forEach(customer => { %>
+                                                                    <option value="<%= customer.user_id %>" ><%= customer.first_name %> <%= customer.last_name %></option>
+                                                                <% }); %>
+                                                        </select>
+                                                        <% if (validationErrors?.customer) { %>
+                                                            <small class="text-danger"><%= validationErrors.customer[0] %></small>
+                                                        <% } %>
+                                                        </div>
+
+                                                        <div class="col-md-4 mb-3">
+                                                            <label class="form-label">First Name</label>
+                                                            <input type="text" class="form-control" name="first_name" id="firstName" value="<%= formData?.first_name || '' %>">
+                                                            <% if (validationErrors?.first_name) { %>
+                                                                <small class="text-danger"><%= validationErrors.first_name[0] %></small>
+                                                            <% } %>
+                                                        </div>
+
+                                                        <div class="col-md-4 mb-3">
+                                                            <label class="form-label">Last Name</label>
+                                                            <input type="text" class="form-control" name="last_name" id="lastName" value="<%= formData?.last_name || '' %>">
+                                                            <% if (validationErrors?.last_name) { %>
+                                                                <small class="text-danger"><%= validationErrors.last_name[0] %></small>
+                                                            <% } %>
+                                                        </div>
+
+                                                        <div class="col-md-4 mb-3">
+                                                            <label class="form-label">Email</label>
+                                                            <input type="email" class="form-control" name="email" id="emailField" value="<%= formData?.email || '' %>">
+                                                            <% if (validationErrors?.email) { %>
+                                                                <small class="text-danger"><%= validationErrors.email[0] %></small>
+                                                            <% } %>
+                                                        </div>
+
+                                                        <div class="col-md-4 mb-3">
+                                                            <label class="form-label">Contact Number</label>
+                                                            <input type="text" class="form-control" name="contact_number" id="contactNumber" value="<%= formData?.contact_number || '' %>">
+                                                            <% if (validationErrors?.contact_number) { %>
+                                                                <small class="text-danger"><%= validationErrors.contact_number[0] %></small>
+                                                            <% } %>
+                                                        </div>
+
+                                                        <div class="col-md-4 mb-3">
+                                                            <label class="form-label">NIC/Passport</label>
+                                                            <input type="text" class="form-control" name="nic_passport" id="nicPassport" value="<%= formData?.nic_passport || '' %>">
+                                                            <% if (validationErrors?.nic_passport) { %>
+                                                                <small class="text-danger"><%= validationErrors.nic_passport[0] %></small>
+                                                            <% } %>
+                                                        </div>
+
+                                                        <div class="col-md-4 mb-3">
+                                                            <label class="form-label">Country</label>
+                                                            <select class="form-control" data-toggle="select2" name="country" id="country" data-width="100%">
+                                                                <option value="Afghanistan">Afghanistan</option>
+                                                                <option value="Åland Islands">Åland Islands</option>
+                                                                <option value="Albania">Albania</option>
+                                                                <option value="Algeria">Algeria</option>
+                                                                <option value="American Samoa">American Samoa</option>
+                                                                <option value="Andorra">Andorra</option>
+                                                                <option value="Angola">Angola</option>
+                                                                <option value="Anguilla">Anguilla</option>
+                                                                <option value="Antarctica">Antarctica</option>
+                                                                <option value="Antigua and Barbuda">Antigua and Barbuda</option>
+                                                                <option value="Argentina">Argentina</option>
+                                                                <option value="Armenia">Armenia</option>
+                                                                <option value="Aruba">Aruba</option>
+                                                                <option value="Australia">Australia</option>
+                                                                <option value="Austria">Austria</option>
+                                                                <option value="Azerbaijan">Azerbaijan</option>
+                                                                <option value="Bahamas">Bahamas</option>
+                                                                <option value="Bahrain">Bahrain</option>
+                                                                <option value="Bangladesh">Bangladesh</option>
+                                                                <option value="Barbados">Barbados</option>
+                                                                <option value="Belarus">Belarus</option>
+                                                                <option value="Belgium">Belgium</option>
+                                                                <option value="Belize">Belize</option>
+                                                                <option value="Benin">Benin</option>
+                                                                <option value="Bermuda">Bermuda</option>
+                                                                <option value="Bhutan">Bhutan</option>
+                                                                <option value="Bolivia">Bolivia</option>
+                                                                <option value="Bosnia and Herzegovina">Bosnia and Herzegovina</option>
+                                                                <option value="Botswana">Botswana</option>
+                                                                <option value="Bouvet Island">Bouvet Island</option>
+                                                                <option value="Brazil">Brazil</option>
+                                                                <option value="British Indian Ocean Territory">British Indian Ocean Territory</option>
+                                                                <option value="Brunei Darussalam">Brunei Darussalam</option>
+                                                                <option value="Bulgaria">Bulgaria</option>
+                                                                <option value="Burkina Faso">Burkina Faso</option>
+                                                                <option value="Burundi">Burundi</option>
+                                                                <option value="Cambodia">Cambodia</option>
+                                                                <option value="Cameroon">Cameroon</option>
+                                                                <option value="Canada">Canada</option>
+                                                                <option value="Cape Verde">Cape Verde</option>
+                                                                <option value="Cayman Islands">Cayman Islands</option>
+                                                                <option value="Central African Republic">Central African Republic</option>
+                                                                <option value="Chad">Chad</option>
+                                                                <option value="Chile">Chile</option>
+                                                                <option value="China">China</option>
+                                                                <option value="Christmas Island">Christmas Island</option>
+                                                                <option value="Cocos (Keeling) Islands">Cocos (Keeling) Islands</option>
+                                                                <option value="Colombia">Colombia</option>
+                                                                <option value="Comoros">Comoros</option>
+                                                                <option value="Congo">Congo</option>
+                                                                <option value="Congo, The Democratic Republic of The">Congo, The Democratic Republic of The</option>
+                                                                <option value="Cook Islands">Cook Islands</option>
+                                                                <option value="Costa Rica">Costa Rica</option>
+                                                                <option value="Cote D'ivoire">Cote D'ivoire</option>
+                                                                <option value="Croatia">Croatia</option>
+                                                                <option value="Cuba">Cuba</option>
+                                                                <option value="Cyprus">Cyprus</option>
+                                                                <option value="Czech Republic">Czech Republic</option>
+                                                                <option value="Denmark">Denmark</option>
+                                                                <option value="Djibouti">Djibouti</option>
+                                                                <option value="Dominica">Dominica</option>
+                                                                <option value="Dominican Republic">Dominican Republic</option>
+                                                                <option value="Ecuador">Ecuador</option>
+                                                                <option value="Egypt">Egypt</option>
+                                                                <option value="El Salvador">El Salvador</option>
+                                                                <option value="Equatorial Guinea">Equatorial Guinea</option>
+                                                                <option value="Eritrea">Eritrea</option>
+                                                                <option value="Estonia">Estonia</option>
+                                                                <option value="Ethiopia">Ethiopia</option>
+                                                                <option value="Falkland Islands (Malvinas)">Falkland Islands (Malvinas)</option>
+                                                                <option value="Faroe Islands">Faroe Islands</option>
+                                                                <option value="Fiji">Fiji</option>
+                                                                <option value="Finland">Finland</option>
+                                                                <option value="France">France</option>
+                                                                <option value="French Guiana">French Guiana</option>
+                                                                <option value="French Polynesia">French Polynesia</option>
+                                                                <option value="French Southern Territories">French Southern Territories</option>
+                                                                <option value="Gabon">Gabon</option>
+                                                                <option value="Gambia">Gambia</option>
+                                                                <option value="Georgia">Georgia</option>
+                                                                <option value="Germany">Germany</option>
+                                                                <option value="Ghana">Ghana</option>
+                                                                <option value="Gibraltar">Gibraltar</option>
+                                                                <option value="Greece">Greece</option>
+                                                                <option value="Greenland">Greenland</option>
+                                                                <option value="Grenada">Grenada</option>
+                                                                <option value="Guadeloupe">Guadeloupe</option>
+                                                                <option value="Guam">Guam</option>
+                                                                <option value="Guatemala">Guatemala</option>
+                                                                <option value="Guernsey">Guernsey</option>
+                                                                <option value="Guinea">Guinea</option>
+                                                                <option value="Guinea-bissau">Guinea-bissau</option>
+                                                                <option value="Guyana">Guyana</option>
+                                                                <option value="Haiti">Haiti</option>
+                                                                <option value="Heard Island and Mcdonald Islands">Heard Island and Mcdonald Islands</option>
+                                                                <option value="Holy See (Vatican City State)">Holy See (Vatican City State)</option>
+                                                                <option value="Honduras">Honduras</option>
+                                                                <option value="Hong Kong">Hong Kong</option>
+                                                                <option value="Hungary">Hungary</option>
+                                                                <option value="Iceland">Iceland</option>
+                                                                <option value="India">India</option>
+                                                                <option value="Indonesia">Indonesia</option>
+                                                                <option value="Iran, Islamic Republic of">Iran, Islamic Republic of</option>
+                                                                <option value="Iraq">Iraq</option>
+                                                                <option value="Ireland">Ireland</option>
+                                                                <option value="Isle of Man">Isle of Man</option>
+                                                                <option value="Israel">Israel</option>
+                                                                <option value="Italy">Italy</option>
+                                                                <option value="Jamaica">Jamaica</option>
+                                                                <option value="Japan">Japan</option>
+                                                                <option value="Jersey">Jersey</option>
+                                                                <option value="Jordan">Jordan</option>
+                                                                <option value="Kazakhstan">Kazakhstan</option>
+                                                                <option value="Kenya">Kenya</option>
+                                                                <option value="Kiribati">Kiribati</option>
+                                                                <option value="Korea, Democratic People's Republic of">Korea, Democratic People's Republic of</option>
+                                                                <option value="Korea, Republic of">Korea, Republic of</option>
+                                                                <option value="Kuwait">Kuwait</option>
+                                                                <option value="Kyrgyzstan">Kyrgyzstan</option>
+                                                                <option value="Lao People's Democratic Republic">Lao People's Democratic Republic</option>
+                                                                <option value="Latvia">Latvia</option>
+                                                                <option value="Lebanon">Lebanon</option>
+                                                                <option value="Lesotho">Lesotho</option>
+                                                                <option value="Liberia">Liberia</option>
+                                                                <option value="Libyan Arab Jamahiriya">Libyan Arab Jamahiriya</option>
+                                                                <option value="Liechtenstein">Liechtenstein</option>
+                                                                <option value="Lithuania">Lithuania</option>
+                                                                <option value="Luxembourg">Luxembourg</option>
+                                                                <option value="Macao">Macao</option>
+                                                                <option value="Macedonia, The Former Yugoslav Republic of">Macedonia, The Former Yugoslav Republic of</option>
+                                                                <option value="Madagascar">Madagascar</option>
+                                                                <option value="Malawi">Malawi</option>
+                                                                <option value="Malaysia">Malaysia</option>
+                                                                <option value="Maldives">Maldives</option>
+                                                                <option value="Mali">Mali</option>
+                                                                <option value="Malta">Malta</option>
+                                                                <option value="Marshall Islands">Marshall Islands</option>
+                                                                <option value="Martinique">Martinique</option>
+                                                                <option value="Mauritania">Mauritania</option>
+                                                                <option value="Mauritius">Mauritius</option>
+                                                                <option value="Mayotte">Mayotte</option>
+                                                                <option value="Mexico">Mexico</option>
+                                                                <option value="Micronesia, Federated States of">Micronesia, Federated States of</option>
+                                                                <option value="Moldova, Republic of">Moldova, Republic of</option>
+                                                                <option value="Monaco">Monaco</option>
+                                                                <option value="Mongolia">Mongolia</option>
+                                                                <option value="Montenegro">Montenegro</option>
+                                                                <option value="Montserrat">Montserrat</option>
+                                                                <option value="Morocco">Morocco</option>
+                                                                <option value="Mozambique">Mozambique</option>
+                                                                <option value="Myanmar">Myanmar</option>
+                                                                <option value="Namibia">Namibia</option>
+                                                                <option value="Nauru">Nauru</option>
+                                                                <option value="Nepal">Nepal</option>
+                                                                <option value="Netherlands">Netherlands</option>
+                                                                <option value="Netherlands Antilles">Netherlands Antilles</option>
+                                                                <option value="New Caledonia">New Caledonia</option>
+                                                                <option value="New Zealand">New Zealand</option>
+                                                                <option value="Nicaragua">Nicaragua</option>
+                                                                <option value="Niger">Niger</option>
+                                                                <option value="Nigeria">Nigeria</option>
+                                                                <option value="Niue">Niue</option>
+                                                                <option value="Norfolk Island">Norfolk Island</option>
+                                                                <option value="Northern Mariana Islands">Northern Mariana Islands</option>
+                                                                <option value="Norway">Norway</option>
+                                                                <option value="Oman">Oman</option>
+                                                                <option value="Pakistan">Pakistan</option>
+                                                                <option value="Palau">Palau</option>
+                                                                <option value="Palestinian Territory, Occupied">Palestinian Territory, Occupied</option>
+                                                                <option value="Panama">Panama</option>
+                                                                <option value="Papua New Guinea">Papua New Guinea</option>
+                                                                <option value="Paraguay">Paraguay</option>
+                                                                <option value="Peru">Peru</option>
+                                                                <option value="Philippines">Philippines</option>
+                                                                <option value="Pitcairn">Pitcairn</option>
+                                                                <option value="Poland">Poland</option>
+                                                                <option value="Portugal">Portugal</option>
+                                                                <option value="Puerto Rico">Puerto Rico</option>
+                                                                <option value="Qatar">Qatar</option>
+                                                                <option value="Reunion">Reunion</option>
+                                                                <option value="Romania">Romania</option>
+                                                                <option value="Russian Federation">Russian Federation</option>
+                                                                <option value="Rwanda">Rwanda</option>
+                                                                <option value="Saint Helena">Saint Helena</option>
+                                                                <option value="Saint Kitts and Nevis">Saint Kitts and Nevis</option>
+                                                                <option value="Saint Lucia">Saint Lucia</option>
+                                                                <option value="Saint Pierre and Miquelon">Saint Pierre and Miquelon</option>
+                                                                <option value="Saint Vincent and The Grenadines">Saint Vincent and The Grenadines</option>
+                                                                <option value="Samoa">Samoa</option>
+                                                                <option value="San Marino">San Marino</option>
+                                                                <option value="Sao Tome and Principe">Sao Tome and Principe</option>
+                                                                <option value="Saudi Arabia">Saudi Arabia</option>
+                                                                <option value="Senegal">Senegal</option>
+                                                                <option value="Serbia">Serbia</option>
+                                                                <option value="Seychelles">Seychelles</option>
+                                                                <option value="Sierra Leone">Sierra Leone</option>
+                                                                <option value="Singapore">Singapore</option>
+                                                                <option value="Slovakia">Slovakia</option>
+                                                                <option value="Slovenia">Slovenia</option>
+                                                                <option value="Solomon Islands">Solomon Islands</option>
+                                                                <option value="Somalia">Somalia</option>
+                                                                <option value="South Africa">South Africa</option>
+                                                                <option value="South Georgia and The South Sandwich Islands">South Georgia and The South Sandwich Islands</option>
+                                                                <option value="Spain">Spain</option>
+                                                                <option value="Sri Lanka">Sri Lanka</option>
+                                                                <option value="Sudan">Sudan</option>
+                                                                <option value="Suriname">Suriname</option>
+                                                                <option value="Svalbard and Jan Mayen">Svalbard and Jan Mayen</option>
+                                                                <option value="Swaziland">Swaziland</option>
+                                                                <option value="Sweden">Sweden</option>
+                                                                <option value="Switzerland">Switzerland</option>
+                                                                <option value="Syrian Arab Republic">Syrian Arab Republic</option>
+                                                                <option value="Taiwan">Taiwan</option>
+                                                                <option value="Tajikistan">Tajikistan</option>
+                                                                <option value="Tanzania, United Republic of">Tanzania, United Republic of</option>
+                                                                <option value="Thailand">Thailand</option>
+                                                                <option value="Timor-leste">Timor-leste</option>
+                                                                <option value="Togo">Togo</option>
+                                                                <option value="Tokelau">Tokelau</option>
+                                                                <option value="Tonga">Tonga</option>
+                                                                <option value="Trinidad and Tobago">Trinidad and Tobago</option>
+                                                                <option value="Tunisia">Tunisia</option>
+                                                                <option value="Turkey">Turkey</option>
+                                                                <option value="Turkmenistan">Turkmenistan</option>
+                                                                <option value="Turks and Caicos Islands">Turks and Caicos Islands</option>
+                                                                <option value="Tuvalu">Tuvalu</option>
+                                                                <option value="Uganda">Uganda</option>
+                                                                <option value="Ukraine">Ukraine</option>
+                                                                <option value="United Arab Emirates">United Arab Emirates</option>
+                                                                <option value="United Kingdom">United Kingdom</option>
+                                                                <option value="United States">United States</option>
+                                                                <option value="United States Minor Outlying Islands">United States Minor Outlying Islands</option>
+                                                                <option value="Uruguay">Uruguay</option>
+                                                                <option value="Uzbekistan">Uzbekistan</option>
+                                                                <option value="Vanuatu">Vanuatu</option>
+                                                                <option value="Venezuela">Venezuela</option>
+                                                                <option value="Viet Nam">Viet Nam</option>
+                                                                <option value="Virgin Islands, British">Virgin Islands, British</option>
+                                                                <option value="Virgin Islands, U.S.">Virgin Islands, U.S.</option>
+                                                                <option value="Wallis and Futuna">Wallis and Futuna</option>
+                                                                <option value="Western Sahara">Western Sahara</option>
+                                                                <option value="Yemen">Yemen</option>
+                                                                <option value="Zambia">Zambia</option>
+                                                                <option value="Zimbabwe">Zimbabwe</option>
+                                                            </select>
+                                                            <% if (validationErrors?.country) { %>
+                                                                <small class="text-danger"><%= validationErrors.country[0] %></small>
+                                                            <% } %>
+                                                        </div>
+                                                        <div class="col-md-4 mb-3">
+                                                            <label class="form-label">Event</label>
+                                                            <select class="form-control" data-toggle="select2" name="event_id" id="eventSelect" data-width="100%">
+                                                                    <option>Select....</option>
+                                                                    <% events.forEach(event => { %>
+                                                                        <option value="<%= event.id %>" data-location="<%= event.location %>"  data-seats="<%= JSON.stringify(event.seats || []) %>"><%= event.name %></option>
+                                                                    <% }); %>
+                                                            </select>
+                                                            <% if (validationErrors?.event) { %>
+                                                                <small class="text-danger"><%= validationErrors.event[0] %></small>
+                                                            <% } %>
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <div id="seatMapContainer" class="mt-4">
+                                                            </div>
+                                                        </div>
+
+                                                        <div id="ticketsWithoutSeatsContainer" style="display: none;">
+    <h4>Tickets Without Assigned Seats:</h4>
+    <div id="ticketTypesList">
+        </div>
+</div>
+
+<input type="hidden" id="tickets_without_seats" name="tickets_without_seats">
+                                                    </div>
+                                                     <input type="hidden" name="selected_seats" id="selectedSeatsInput">    
+                                                    <button type="submit" class="btn btn-primary mt-4">Submit</button>
+                                                </form>
+
+                                    </div> </div> </div>
+                        </div>
+                        </div> </div>
+
+            </div>
+            <%- include('../layouts/footer.ejs') %>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    // Selectors for elements on the page
+    const customerSelect = document.getElementById('customerSelect');
+    const firstNameField = document.getElementById('firstName');
+    const lastNameField = document.getElementById('lastName');
+    const emailField = document.getElementById('emailField');
+    const contactNumberField = document.getElementById('contactNumber');
+    const nicPassportField = document.getElementById('nicPassport');
+
+    const eventSelect = document.getElementById('eventSelect');
+    const seatMapContainer = document.getElementById('seatMapContainer');
+    const selectedSeatsInput = document.getElementById('selectedSeatsInput'); // The hidden input for selected seats
+
+
+    const ticketsWithoutSeatsContainer = document.getElementById('ticketsWithoutSeatsContainer');
+    const ticketTypesList = document.getElementById('ticketTypesList');
+    const ticketsWithoutSeatsHiddenInput = document.getElementById('tickets_without_seats');
+
+    let selectedTicketsWithoutSeats = {};
+
+    let currentSeatsData = {}; // Object to quickly look up seat data by ID { "A1": {status: "booked", ...}, "A2": {...} }
+    let selectedSeatsForBooking = []; // Array to hold the IDs of seats selected by the admin for the current booking
+
+    // Helper function to clear customer fields
+    function clearCustomerFields() {
+        if (firstNameField) firstNameField.value = '';
+        if (lastNameField) lastNameField.value = '';
+        if (emailField) emailField.value = '';
+        if (contactNumberField) contactNumberField.value = '';
+        if (nicPassportField) nicPassportField.value = '';
+    }
+
+    // Customer selection logic
+    // This assumes jQuery is loaded if $(customerSelect).on is used.
+    // If not, use native addEventListener: customerSelect.addEventListener('change', async function() { ... });
+    if (customerSelect) { // Check if element exists before attaching listener
+        $(customerSelect).on('change', async function() {
+            const selectedCustomerId = this.value;
+            if (selectedCustomerId === 'guest' || selectedCustomerId === '') { // Added empty string for "Select..." option
+                clearCustomerFields();
+                return;
+            }
+            try {
+                // Using template literals for the URL
+                const response = await fetch(`/customer-details/${selectedCustomerId}`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                if (data && data.customerserDetails) {
+                    if (firstNameField) firstNameField.value = data.customerserDetails.first_name || '';
+                    if (lastNameField) lastNameField.value = data.customerserDetails.last_name || '';
+                    if (emailField) emailField.value = data.email || '';
+                    if (contactNumberField) contactNumberField.value = data.customerserDetails.contact_number || '';
+                    if (nicPassportField) nicPassportField.value = data.customerserDetails.nic_passport || '';
+                } else {
+                    console.warn("Customer or customerserDetails not found, clearing fields.");
+                    clearCustomerFields();
+                }
+            } catch (error) {
+                console.error('Failed to fetch customer details:', error);
+                clearCustomerFields();
+            }
+        });
+    }
+
+
+    // Function to update the visual state of a seat in the SVG
+    // This function now accepts an optional 'initialColor' parameter for setting the base color
+    function updateSeatVisual(seatGroup, status, initialColor = '#C4C4C4') {
+        const seatPaths = seatGroup.querySelectorAll('path');
+        let fillColor = initialColor; // Use the provided initialColor as the base
+
+        // Override the fill color if the seat is 'selected' by the admin
+        if (status === 'selected') {
+            fillColor = '#FFD700'; // Gold for admin-selected
+        }
+
+        seatPaths.forEach(path => {
+            path.style.fill = fillColor;
+        });
+
+        // Remove existing status classes and add new one for CSS styling
+        seatGroup.classList.remove(
+            'seat-status-available', 'seat-status-selected',
+            'seat-status-booked', 'seat-status-issued',
+            'seat-status-pending', 'seat-status-unavailable'
+        );
+        seatGroup.classList.add(`seat-status-${status}`);
+    }
+
+    // Function to handle seat click for selection/deselection
+    function toggleSeatSelection(seatId) {
+        const seatGroup = document.getElementById(seatId);
+        if (!seatGroup) {
+            console.warn(`Seat group with ID ${seatId} not found in SVG.`);
+            return;
+        }
+
+        // Get the current status and color from our currentSeatsData map (based on backend data)
+        const seatInfo = currentSeatsData[seatId];
+        // IMPORTANT: If currentSeatsData is empty (meaning no seats assigned from backend),
+        // or if the specific seatId is not found in the backend data, it should NOT be available.
+        const seatStatus = seatInfo ? seatInfo.status : 'unavailable'; // Default to 'unavailable' if seat not found in backend data
+        const seatColor = seatInfo ? seatInfo.color : '#C4C4C4'; // Get the backend color or default
+
+        // Only allow selection if the seat is explicitly 'available' in the backend data
+        if (seatStatus !== 'available') {
+            console.log(`Seat ${seatId} is ${seatStatus} and cannot be selected.`);
+            return;
+        }
+
+        const indexInSelected = selectedSeatsForBooking.indexOf(seatId);
+
+        if (indexInSelected > -1) {
+            // Seat is already selected by admin, deselect it
+            selectedSeatsForBooking.splice(indexInSelected, 1);
+            // Revert visual to its original 'available' state using its backend color
+            updateSeatVisual(seatGroup, 'available', seatColor); // Pass the backend color
+        } else {
+            // Seat is not selected, select it
+            selectedSeatsForBooking.push(seatId);
+            updateSeatVisual(seatGroup, 'selected'); // Set to 'selected' state (gold)
+        }
+
+        selectedSeatsInput.value = JSON.stringify(selectedSeatsForBooking);
+        console.log('Current Selected Seat IDs:', selectedSeatsForBooking);
+    }
+
+    // Event listener for event selection change
+    // This assumes jQuery is loaded if $(eventSelect).on is used.
+    // If not, use native addEventListener: eventSelect.addEventListener('change', async function() { ... });
+    $(eventSelect).on('change', async function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const location = selectedOption.dataset.location;
+        let seatsDataString = selectedOption.dataset.seats; // Get the seats data string from data-attribute
+        const eventId = this.value;
+        ticketTypesList.innerHTML = '';
+        ticketsWithoutSeatsContainer.style.display = 'none';
+        selectedTicketsWithoutSeats = {};
+        ticketsWithoutSeatsHiddenInput.value = '';
+
+        // Clear previously selected seats and the input field
+        selectedSeatsForBooking = [];
+        selectedSeatsInput.value = JSON.stringify([]);
+        seatMapContainer.innerHTML = ''; // Clear previous SVG map
+
+        if (!eventId || !location) {
+            console.warn("No event selected or no location data for selected event.");
+            seatMapContainer.innerHTML = '<p class="text-muted">Select an event to load the seat map.</p>';
+            currentSeatsData = {}; // Ensure currentSeatsData is empty if no event selected
+            return;
+        }
+
+        // --- IMPORTANT DEBUGGING LOGS AND FIX ---
+        console.log('1. Raw seatsDataString from data-attribute:', seatsDataString);
+        
+        let rawSeats = [];
+        if (seatsDataString) {
+            try {
+                // First attempt to parse
+                let parsedData = JSON.parse(seatsDataString);
+                console.log('2. parsedData after first JSON.parse:', parsedData);
+                console.log('    Type of parsedData (first parse):', typeof parsedData, 'Is Array:', Array.isArray(parsedData));
+
+                // Check if the result of the first parse is a string and try parsing again
+                // This handles cases where the data was double-stringified on the server
+                if (typeof parsedData === 'string' && parsedData.startsWith('[') && parsedData.endsWith(']')) {
+                    console.log('    Parsed data is a string, attempting second parse...');
+                    parsedData = JSON.parse(parsedData); // Try parsing again
+                    console.log('3. parsedData after second JSON.parse:', parsedData);
+                    console.log('    Type of parsedData (second parse):', typeof parsedData, 'Is Array:', Array.isArray(parsedData));
+                }
+
+                // Ensure the final parsed data is an array
+                if (Array.isArray(parsedData)) {
+                    rawSeats = parsedData;
+                } else {
+                    console.error("ERROR: JSON.parse did not yield an array after all attempts. Resetting rawSeats to empty array. Actual parsed value:", parsedData);
+                    rawSeats = []; // Defensive reset if parsing yields a non-array
+                }
+            } catch (e) {
+                // This catch block handles cases where JSON.parse throws an error (e.g., invalid JSON format).
+                console.error("Error parsing seatsDataString. This likely means the data-seats attribute is malformed JSON.", e, "Original string:", seatsDataString);
+                rawSeats = []; // Fallback to empty array if JSON.parse fails
+            }
+        } else {
+            console.log("seatsDataString is empty or null, initializing rawSeats as empty array.");
+        }
+
+        // Reduce the rawSeats array into an object for quicker lookup by seatId
+        // If rawSeats is empty, currentSeatsData will also be empty.
+        // This ensures that any seat in the SVG not explicitly present in rawSeats will default to 'unavailable'.
+        currentSeatsData = rawSeats.reduce((acc, seat) => {
+            // Ensure 'seat' object is valid and has a string 'seatId' before accessing properties
+            if (seat && typeof seat.seatId === 'string') {
+                // Store both status and color
+                acc[seat.seatId] = {
+                    status: seat.status || 'available', // Default to 'available' if status is missing
+                    color: seat.color || '#C4C4C4' // Default to gray if color is missing
+                };
+            } else {
+                console.warn("Skipping invalid seat entry in rawSeats:", seat);
+            }
+            return acc;
+        }, {});
+
+        console.log('4. currentSeatsData after reduce (based on backend data):', currentSeatsData);
+
+
+        // Determine which SVG file to load based on the location
+        let svgFileName = '';
+        switch (location) {
+            case 'BMICH': svgFileName = 'bmich.svg'; break;
+            case 'Nelum Pokuna': svgFileName = 'nelum.svg'; break;
+            case 'Musaeus College': svgFileName = 'musaeus.svg'; break;
+            case 'Bishop College': svgFileName = 'bishop.svg'; break; // Corrected spelling to match your example
+            default:
+                console.warn("No SVG file mapping found for this location:", location);
+                seatMapContainer.innerHTML = '<p class="text-danger">No seat map available for this location.</p>';
+                return;
+        }
+        // Using template literals for the path
+        const svgPath = `/assets/seat-map-svgs/${svgFileName}`;
+
+        try {
+            const response = await fetch(svgPath);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status} for ${svgPath}`);
+            }
+            const svgContent = await response.text();
+            seatMapContainer.innerHTML = svgContent; // Inject the SVG into the container
+
+            // After SVG is injected, iterate through its seat groups and apply initial colors/cursors
+            // Use a slight delay to ensure the SVG elements are fully parsed and available in the DOM
+            setTimeout(() => {
+                const seatsInSvg = seatMapContainer.querySelectorAll('.seat-group');
+                if (seatsInSvg.length === 0) {
+                    console.warn("No elements with class 'seat-group' found in the loaded SVG. Ensure your SVG seats have class='seat-group' and a unique ID.");
+                    // Display a message or visual cue if no seats found in SVG
+                    seatMapContainer.innerHTML += '<p class="text-info">No individual seat groups found in the SVG map. Check SVG structure.</p>';
+                    return; // Exit if no seat groups are found
+                }
+
+                seatsInSvg.forEach(seatGroup => {
+                    const seatId = seatGroup.id;
+                    if (!seatId) {
+                        console.warn("Skipping seat group without an ID:", seatGroup);
+                        return; // Skip if a seat group doesn't have an ID (crucial for mapping)
+                    }
+
+                    const seatInfo = currentSeatsData[seatId];
+                    // Get status and color from the backend data
+                    const status = seatInfo ? seatInfo.status : 'unavailable'; // Defaults to 'unavailable' if seat not provided by backend
+                    const color = seatInfo ? seatInfo.color : '#C4C4C4'; // Defaults to gray if color not provided by backend
+
+                    updateSeatVisual(seatGroup, status, color); // Apply initial color/style using the backend color
+
+                    // Only add click listener if the seat is 'available' based on backend data
+                    if (status === 'available') {
+                        seatGroup.style.cursor = 'pointer';
+                        seatGroup.classList.add('clickable-seat'); // Add a class for CSS cursor
+                        seatGroup.addEventListener('click', () => {
+                            toggleSeatSelection(seatId);
+                        });
+                    } else {
+                        seatGroup.style.cursor = 'not-allowed';
+                        seatGroup.classList.remove('clickable-seat'); // Remove clickable class
+                        // No click listener for unavailable/booked/etc. seats
+                    }
+                });
+                console.log('Seat map and initial states rendered successfully for', seatsInSvg.length, 'seats.');
+            }, 100); // Increased delay slightly to ensure DOM readiness, especially for large SVGs
+
+            const ticketsWithoutSeatsResponse = await fetch(`/get-tickets-without-seats/${eventId}`);
+
+            if (!ticketsWithoutSeatsResponse.ok) {
+                    throw new Error(`HTTP error! status: ${ticketsWithoutSeatsResponse.status}`);
+                }
+                const ticketsWithoutSeats = await ticketsWithoutSeatsResponse.json();
+                console.log('ticketsWithoutSeats',ticketsWithoutSeats);
+                if (ticketsWithoutSeats.length > 0) {
+                    ticketsWithoutSeatsContainer.style.display = 'block';
+                    ticketsWithoutSeats.forEach(ticketType => {
+                        const div = document.createElement('div');
+                        div.className = 'form-group mb-2'; 
+
+                        div.innerHTML = `
+                            <label for="ticketType_${ticketType.ticket_type_id}">${ticketType.ticket_type_name} (Available: ${ticketType.available_count}, Price: $${ticketType.price})</label>
+                            <input type="number" 
+                                   id="ticketType_${ticketType.ticket_type_id}" 
+                                   class="form-control ticket-count-input" 
+                                   min="0" 
+                                   max="${ticketType.available_count}" 
+                                   value="0" 
+                                   data-ticket-type-id="${ticketType.ticket_type_id}">
+                        `;
+                        ticketTypesList.appendChild(div);
+
+                        // Initialize the selected count for this ticket type
+                        selectedTicketsWithoutSeats[ticketType.ticket_type_id] = 0;
+                    });
+
+                    // Attach event listener to the parent container for delegation
+                    ticketTypesList.addEventListener('input', (e) => {
+                        if (e.target.classList.contains('ticket-count-input')) {
+                            const ticketTypeId = parseInt(e.target.dataset.ticketTypeId);
+                            let count = parseInt(e.target.value);
+
+                            // Ensure count is not negative and within available limit
+                            if (isNaN(count) || count < 0) {
+                                count = 0;
+                            }
+                            const maxCount = parseInt(e.target.max);
+                            if (count > maxCount) {
+                                count = maxCount;
+                                e.target.value = maxCount; // Update the input field
+                            }
+
+                            selectedTicketsWithoutSeats[ticketTypeId] = count;
+                            updateHiddenInput();
+                        }
+                    });
+
+                    // Initial update of the hidden input
+                    updateHiddenInput();
+
+                } else {
+                    // No tickets without seats for this event
+                    ticketsWithoutSeatsContainer.style.display = 'none';
+                }
+
+        } catch (error) {
+            console.error('Failed to load SVG or apply seat states:', error);
+            seatMapContainer.innerHTML = '<p class="text-danger">Error loading seat map. Please check the file path and server configuration.</p>';
+        }
+    });
+
+    // Initial load logic for customer and event selection
+    // Check if customerSelect exists before trying to access its value
+    if (customerSelect) {
+        // Also check for empty string for the "Select..." option
+        if (customerSelect.value && customerSelect.value !== 'guest' && customerSelect.value !== '') {
+            $(customerSelect).trigger('change'); // Trigger change if a customer is pre-selected
+        } else {
+            clearCustomerFields();
+        }
+    } else {
+        console.warn("Customer select element not found (ID: customerSelect).");
+    }
+
+     function updateHiddenInput() {
+        const formattedData = [];
+        for (const ticketTypeId in selectedTicketsWithoutSeats) {
+            if (selectedTicketsWithoutSeats.hasOwnProperty(ticketTypeId) && selectedTicketsWithoutSeats[ticketTypeId] > 0) {
+                formattedData.push({
+                    ticket_type_id: parseInt(ticketTypeId),
+                    ticket_count: selectedTicketsWithoutSeats[ticketTypeId]
+                });
+            }
+        }
+        ticketsWithoutSeatsHiddenInput.value = JSON.stringify(formattedData);
+        console.log('Hidden input value:', ticketsWithoutSeatsHiddenInput.value); // For debugging
+    }
+
+    // Trigger event select change on page load if an event is pre-selected
+    if (eventSelect) { // Check if eventSelect exists
+        if (eventSelect.value) {
+            $(eventSelect).trigger('change');
+        }
+    } else {
+        console.warn("Event select element not found (ID: eventSelect).");
+    }
+
+    // Inject CSS for seat styling
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .seat-group > path {
+            transition: fill 0.2s ease-in-out; /* Smooth color changes */
+        }
+        .clickable-seat:hover > path { /* Apply hover to paths within clickable groups */
+            opacity: 0.8; /* Dim on hover */
+        }
+        /* Styles for non-clickable/occupied seats (fill color is now primarily from JS) */
+        .seat-status-booked > path,
+        .seat-status-issued > path,
+        .seat-status-pending > path,
+        .seat-status-unavailable > path {
+            cursor: not-allowed !important;
+            /* filter: grayscale(50%); /* You can keep this or remove if backend color is sufficient */
+        }
+        /* Style for admin-selected seats (overrides backend color when selected) */
+        .seat-status-selected > path {
+            stroke: #333;
+            stroke-width: 2;
+        }
+        /* Default fill for available seats is now primarily from JS updateSeatVisual function */
+    `;
+    document.head.appendChild(style);
+});
+</script>

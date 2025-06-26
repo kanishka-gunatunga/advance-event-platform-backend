@@ -1,0 +1,267 @@
+<%- include('../layouts/header.ejs') %>
+<div class="content-page">
+    <div class="content">
+
+        <div class="container-fluid">
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">View Booking</h4>
+                           <a href="/bookings/cancel-booking/<%= order.id %>" onclick="return confirm('Are you sure you want to cancel the entire booking? This will cancel all tickets and cannot be undone.');">
+                                <button type="button" class="btn btn-danger btn-sm mt-2 mb-3">Cancel Whole Booking</button>
+                            </a>
+                            <% if (success) { %>
+                                <div class="alert alert-success"><%= success %></div>
+                            <% } %>
+                            <% if (error) { %>
+                                <div class="alert alert-danger"><%= error %></div>
+                            <% } %>
+
+                            <h4 class="mt-2">Order Details</h4>
+                            <div class="row">
+                                <div class="col-md-4 mb-2">
+                                    <h5 class="font-600 m-b-5">Date/Time</h5>
+                                    <p><%= order.createdAt %></p>
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <h5 class="font-600 m-b-5">Total</h5>
+                                    <p>LKR <%= order.total %></p>
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <h5 class="font-600 m-b-5">Status</h5>
+                                    <p><%= order.status %></p>
+                                </div>
+                            </div>
+
+                            <h4 class="mt-2">Customer Details</h4>
+                            <div class="row">
+                                <div class="col-md-4 mb-2">
+                                    <h5 class="font-600 m-b-5">First Name</h5>
+                                    <p><%= order.first_name %></p>
+                                </div>
+
+                                <div class="col-md-4 mb-2">
+                                    <h5 class="font-600 m-b-5">Last Name</h5>
+                                    <p><%= order.last_name %></p>
+                                </div>
+
+                                <div class="col-md-4 mb-2">
+                                    <h5 class="font-600 m-b-5">Email</h5>
+                                    <p><%= order.email %></p>
+                                </div>
+
+                                <div class="col-md-4 mb-2">
+                                    <h5 class="font-600 m-b-5">Contact Number</h5>
+                                    <p><%= order.contact_number %></p>
+                                </div>
+
+                                <div class="col-md-4 mb-2">
+                                    <h5 class="font-600 m-b-5">NIC/Passport</h5>
+                                    <p><%= order.nic_passport %></p>
+                                </div>
+
+                                <div class="col-md-4 mb-2">
+                                    <h5 class="font-600 m-b-5">Country</h5>
+                                    <p><%= order.country %></p>
+                                </div>
+                            </div>
+
+                            <h4 class="mt-2">Event Details</h4>
+                            <div class="row">
+                                <div class="col-md-4 mb-2">
+                                    <h5 class="font-600 m-b-5">Event</h5>
+                                    <p><%= order.event.name %></p>
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <h5 class="font-600 m-b-5">Location</h5>
+                                    <p><%= order.event.location %></p>
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <h5 class="font-600 m-b-5">Date/Time</h5>
+                                    <p><%= order.event.start_date_time %></p>
+                                </div>
+                            </div>
+
+                            <h4 class="mt-2">Booked Tickets</h4>
+
+                           <% if (order.seat_ids && order.seat_ids.length > 0) { %>
+                                <h5>Tickets with Assigned Seats (<%= order.seat_ids.length %>)</h5>
+                                <form id="cancelSeatsForm" action="/bookings/cancel-seat/<%= order.id %>" method="POST" onsubmit="return confirmCancel();">
+                                    <div class="row">
+                                        <% order.seat_ids.forEach(seat => { %>
+                                            <div class="col-md-2 mb-2">
+                                                <div class="card">
+                                                    <div class="card-body text-center">
+                                                        <input type="checkbox" name="selectedSeats" class="form-check-input float-start"
+                                                            value="<%= JSON.stringify({ seatId: seat.seatId, type_id: seat.type_id, ticketTypeName: seat.ticketTypeName, price: seat.price }) %>">
+                                                        <h6>Seat: <%= seat.seatId %></h6>
+                                                        <p>Ticket Type: <span style="font-weight: bold; color: <%= seat.color %>;"><%= seat.ticketTypeName %></span></p>
+                                                        <p>Price: Rs. <%= seat.price %></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <% }) %>
+                                    </div>
+                                    <div class="mt-3 text-center">
+                                        <button type="button" class="btn btn-secondary me-2" onclick="toggleSelectAll()">Select All</button>
+                                        <button type="submit" class="btn btn-danger">Cancel Selected Seats</button>
+                                    </div>
+                                    <input type="hidden" id="canceledSeatsData" name="canceledSeats">
+                                </form>
+                            <% } %>
+                           <% if (order.tickets_without_seats && order.tickets_without_seats.length > 0) { %>
+                            <h5>Tickets without Assigned Seats</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Ticket Type</th>
+                                            <th>Ordered Quantity</th>
+                                            <th>Issued Quantity</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% order.tickets_without_seats.forEach(ticket => { %>
+                                            <tr>
+                                                <td>
+                                                    <%= ticket.name %> (LKR <%= ticket.price %>)
+                                                </td>
+                                                <td><%= ticket.ticket_count %></td>
+                                                <td><%= ticket.issued_count %></td>
+                                                <td>
+                                                    <% if (ticket.ticket_count - ticket.issued_count > 0) { %>
+                                                        <form action="/bookings/cancel-tickets-without-seat/<%= order.id %>" method="POST" class="d-flex align-items-center">
+                                                            <input type="hidden" name="ticketTypeId" value="<%= ticket.ticket_type_id %>">
+                                                            <input type="hidden" name="ticketTypeName" value="<%= ticket.name %>">
+                                                            <input type="number" name="cancelQuantity" min="1" max="<%= ticket.ticket_count - ticket.issued_count %>" value="1" class="form-control me-2" style="width: 100px;">
+                                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to cancel these tickets? This action cannot be undone.');">Cancel</button>
+                                                        </form>
+                                                    <% } else { %>
+                                                        <span class="text-muted">No cancellable tickets</span>
+                                                    <% } %>
+                                                </td>
+                                            </tr>
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <% } %>
+
+                       <h4 class="mt-2">Cancellations</h4>
+                        <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                            <tr>
+                                <th>Seat or No Seat</th>
+                                <th>Ticket Type</th>
+                                <th>Seat ID(s)</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <% // 'order.cancells' here should be the 'finalCancells' array passed from your backend %>
+                            <% order.cancells.forEach(cancel => { %>
+                            <tr>
+                                <td>
+                                <%= cancel.type %>
+                                </td>
+                                <td><%= cancel.ticketTypeName %></td>
+                                <td>
+                                <% // Display seat IDs if available, otherwise '-' %>
+                                <% if (cancel.type === 'seat' && cancel.seat_ids && cancel.seat_ids.length > 0) { %>
+                                    <%= cancel.seat_ids.join(', ') %>
+                                <% } else { %>
+                                    -
+                                <% } %>
+                                </td>
+                                <td><%= cancel.quantity %></td>
+                                <td><%= cancel.price.toFixed(2) %></td>
+                            </tr>
+                            <% }) %>
+                            </tbody>
+                        </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%- include('../layouts/footer.ejs') %>
+<script>
+    // Function to update the hidden input field with selected seats
+    function updateCanceledSeatsData() {
+        const checkboxes = document.querySelectorAll('input[name="selectedSeats"]:checked');
+        const seatIdsToCancel = Array.from(checkboxes).map(checkbox => {
+            return JSON.parse(checkbox.value);
+        });
+        document.getElementById('canceledSeatsData').value = JSON.stringify(seatIdsToCancel);
+    }
+
+    function confirmCancel() {
+        const checkboxes = document.querySelectorAll('input[name="selectedSeats"]:checked');
+        if (checkboxes.length === 0) {
+            showCustomMessage('Please select at least one seat to cancel.', 'warning');
+            return false;
+        }
+
+        // The canceledSeatsData is already updated by the click event listener, so we don't need to do it here again.
+        // However, it's good practice to ensure it's up-to-date right before submission.
+        updateCanceledSeatsData();
+
+        return new Promise((resolve) => {
+            showCustomConfirm(`Are you sure you want to cancel ${checkboxes.length} selected seat(s)? This action cannot be undone.`, (result) => {
+                resolve(result);
+            });
+        });
+    }
+
+    function toggleSelectAll() {
+        const checkboxes = document.querySelectorAll('input[name="selectedSeats"]');
+        const selectAllButton = document.querySelector('.btn-secondary');
+        let allChecked = true;
+
+        checkboxes.forEach(checkbox => {
+            if (!checkbox.checked) {
+                allChecked = false;
+            }
+        });
+
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = !allChecked;
+        });
+
+        selectAllButton.textContent = allChecked ? 'Select All' : 'Deselect All';
+
+        // Update the hidden input after toggling all checkboxes
+        updateCanceledSeatsData();
+    }
+
+    // Placeholder for custom message box/modal functions
+    function showCustomMessage(message, type) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `alert alert-${type} mt-3`;
+        messageDiv.textContent = message;
+        document.body.prepend(messageDiv);
+        setTimeout(() => messageDiv.remove(), 3000);
+    }
+
+    function showCustomConfirm(message, callback) {
+        const result = window.confirm(message);
+        callback(result);
+    }
+
+    // Add event listeners to each checkbox when the DOM is loaded
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const checkboxes = document.querySelectorAll('input[name="selectedSeats"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateCanceledSeatsData);
+        });
+        // Initial update in case some checkboxes are pre-checked (though not in this template)
+        updateCanceledSeatsData();
+    });
+</script>

@@ -1,0 +1,140 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING") 
+}
+
+model user_sessions {
+  sid     String   @id @db.VarChar(255)
+  sess    Json
+  expire  DateTime
+
+  @@index([expire])
+}
+
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  user_role  Int
+  is_verified  Int?
+  otp      String?
+  status String
+  createdAt DateTime @default(now())
+
+  customerserDetails CustomerDetails?
+  adminDetails AdminDetails?
+  staffDetails StaffDetails?
+}
+
+model CustomerDetails {
+  id        Int      @id @default(autoincrement())
+  user_id     Int   @unique
+  first_name  String?
+  last_name  String?
+  contact_number  String?
+  country String?
+  gender String?
+  dob DateTime?
+  address  String?
+  city  String?
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [user_id], references: [id])
+}
+
+model AdminDetails {
+  id        Int      @id @default(autoincrement())
+  user_id     Int   @unique
+  name  String?
+  phone  String?
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [user_id], references: [id])
+}
+
+model StaffDetails {
+  id        Int      @id @default(autoincrement())
+  user_id     Int   @unique
+  name  String?
+  phone  String?
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [user_id], references: [id])
+}
+
+model Artist {
+  id        Int      @id @default(autoincrement())
+  name  String?
+  status String
+  createdAt DateTime @default(now())
+
+}
+
+model TicketType {
+  id        Int      @id @default(autoincrement())
+  name  String?
+  color  String?
+  status String
+  createdAt DateTime @default(now())
+
+}
+
+model Event {
+  id            Int       @id @default(autoincrement())
+  name          String
+  slug            String   @unique
+  start_date_time DateTime
+  end_date_time   DateTime
+  description   String
+  policy  String
+  organized_by   String
+  location      String
+  banner_image   String?
+  featured_image String?
+  ticket_details Json?     
+  artist_details Json?   
+  gallery_media Json?
+
+  seats Json?  
+  status String
+}
+
+model Order {
+  id             Int      @id @default(autoincrement())
+  email          String
+  first_name     String 
+  last_name      String
+  contact_number String
+  nic_passport   String
+  country        String
+  event_id       String
+  user_id        String
+  seat_ids       Json?
+  tickets_without_seats       Json?
+  sub_total      Float
+  discount       Float
+  total          Float
+  status         String
+  createdAt DateTime? @default(now())
+}
+
+
+model canceledTicket {
+  id             Int      @id @default(autoincrement())
+  order_id       Int
+  type     String 
+  seat_id      String?
+  type_id String?
+  ticketTypeName   String?
+  quantity Float?
+  price Float?
+  createdAt DateTime? @default(now())
+}

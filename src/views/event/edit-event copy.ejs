@@ -1,0 +1,721 @@
+<%- include('../layouts/header.ejs') %>
+<style>
+svg{
+width: 100%;
+height: auto; 
+}
+</style>
+<div class="content-page">
+    <div class="content">
+
+        <div class="container-fluid">
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">Edit Event</h4>
+                            <ul class="nav nav-pills navtab-bg">
+                            <li class="nav-item">
+                                <a href="#home1" data-bs-toggle="tab" aria-expanded="false" class="nav-link active">
+                                   Basic Details
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#profile1" data-bs-toggle="tab" aria-expanded="true" class="nav-link ">
+                                   Seat Configuration
+                                </a>
+                            </li>
+                            
+                        </ul>
+
+                        <div class="tab-content">
+                            <div class="tab-pane show active" id="home1">
+                                <form class="mt-4" method="POST" action="/event/edit/<%= enrichedEvent.id %>" enctype="multipart/form-data">
+                                    <% if (success) { %>
+                                        <div class="alert alert-success"><%= success %></div>
+                                    <% } %>
+                                    <% if (error) { %>
+                                        <div class="alert alert-danger"><%= error %></div>
+                                    <% } %>
+
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">Name</label>
+                                            <input type="text" class="form-control" name="name" value="<%= formData?.name || enrichedEvent.name || '' %>">
+                                            <% if (validationErrors?.name) { %>
+                                                <small class="text-danger"><%= validationErrors.name[0] %></small>
+                                            <% } %>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">Start Date Time</label>
+                                            <input type="text" name="start_date_time" class="form-control datetime-datepicker" placeholder="Start Date and Time" value="<%= formData?.start_date_time || new Date(enrichedEvent.start_date_time).toISOString().slice(0, 16).replace('T', ' ') || '' %>">
+                                            <% if (validationErrors?.start_date_time) { %>
+                                                <small class="text-danger"><%= validationErrors.start_date_time[0] %></small>
+                                            <% } %>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">End Date Time</label>
+                                            <input type="text" name="end_date_time" class="form-control datetime-datepicker" placeholder="End Date and Time" value="<%= formData?.end_date_time || new Date(enrichedEvent.end_date_time).toISOString().slice(0, 16).replace('T', ' ') || '' %>">
+                                            <% if (validationErrors?.end_date_time) { %>
+                                                <small class="text-danger"><%= validationErrors.end_date_time[0] %></small>
+                                            <% } %>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Description</label>
+                                            <textarea class="form-control" id="example-textarea" name="discription" rows="5"><%= formData?.discription || enrichedEvent.description || '' %></textarea>
+                                            <% if (validationErrors?.discription) { %>
+                                                <small class="text-danger"><%= validationErrors.discription[0] %></small>
+                                            <% } %>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Ticket Policy</label>
+                                            <textarea class="form-control" id="example-textarea" name="policy" rows="5"><%= formData?.policy || enrichedEvent.policy || '' %></textarea>
+                                            <% if (validationErrors?.policy) { %>
+                                                <small class="text-danger"><%= validationErrors.policy[0] %></small>
+                                            <% } %>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">Organized By</label>
+                                            <input type="text" class="form-control" name="organized_by" value="<%= formData?.organized_by || enrichedEvent.organized_by || '' %>">
+                                            <% if (validationErrors?.organized_by) { %>
+                                                <small class="text-danger"><%= validationErrors.organized_by[0] %></small>
+                                            <% } %>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">Location</label>
+                                            <select class="form-control" data-toggle="select2" name="location" data-width="100%">
+                                                <option value="BMICH" <%= (formData?.location || enrichedEvent.location) === 'BMICH' ? 'selected' : '' %>>BMICH</option>
+                                                <option value="Nelum Pokuna" <%= (formData?.location || enrichedEvent.location) === 'Nelum Pokuna' ? 'selected' : '' %>>Nelum Pokuna</option>
+                                                <option value="Musaeus College" <%= (formData?.location || enrichedEvent.location) === 'Musaeus College' ? 'selected' : '' %>>Musaeus College</option>
+                                            </select>
+                                            <% if (validationErrors?.location) { %>
+                                                <small class="text-danger"><%= validationErrors.location[0] %></small>
+                                            <% } %>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">Artists</label>
+                                            <select class="form-control select2-multiple" name="artists[]" data-toggle="select2" data-width="100%" multiple="multiple" data-placeholder="Choose ...">
+                                                <% allArtists.forEach(artist => { %>
+                                                    <option value="<%= artist.id %>"
+                                                        <%
+                                                            // Check if the artist ID is in formData (after validation error)
+                                                            const isSelectedInFormData = formData?.artists && Array.isArray(formData.artists) && formData.artists.includes(artist.id.toString());
+                                                            // Check if the artist ID is in enrichedEvent.artist_details (from database)
+                                                            const isSelectedInEvent = enrichedEvent.artist_details && Array.isArray(enrichedEvent.artist_details) && enrichedEvent.artist_details.includes(artist.id);
+                                                            if (isSelectedInFormData || isSelectedInEvent) {
+                                                                %> selected <%
+                                                            }
+                                                        %>
+                                                    >
+                                                        <%= artist.name %>
+                                                    </option>
+                                                <% }); %>
+                                            </select>
+                                            <% if (validationErrors?.artists) { %>
+                                                <small class="text-danger"><%= validationErrors.artists[0] %></small>
+                                            <% } %>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">Banner Image</label>
+                                            <input type="file" class="form-control" name="banner_image" accept="image/*">
+                                            <% if (enrichedEvent.banner_image) { %>
+                                                <div class="mt-2">
+                                                    <img src="<%= enrichedEvent.banner_image %>" alt="Banner Image" style="max-width: 150px; height: auto;">
+                                                </div>
+                                            <% } %>
+                                            <% if (validationErrors?.banner_image) { %>
+                                                <small class="text-danger"><%= validationErrors.banner_image[0] %></small>
+                                            <% } %>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">Featured Image</label>
+                                            <input type="file" class="form-control" name="featured_image" accept="image/*">
+                                            <% if (enrichedEvent.featured_image) { %>
+                                                <div class="mt-2">
+                                                    <img src="<%= enrichedEvent.featured_image %>" alt="Featured Image" style="max-width: 150px; height: auto;">
+                                                </div>
+                                            <% } %>
+                                            <% if (validationErrors?.featured_image) { %>
+                                                <small class="text-danger"><%= validationErrors.featured_image[0] %></small>
+                                            <% } %>
+                                        </div>
+                                        <div class="col-md-12 mb-3">
+                                            <h4 class="header-title">Set Ticket Prices</h4>
+                                            <div id="ticket-container">
+                                                <%
+                                                // Prioritize formData tickets if present (after validation error)
+                                                const ticketsToRender = formData?.tickets?.length > 0 ? formData.tickets : enrichedEvent.ticket_details;
+                                                %>
+
+                                                <% if (ticketsToRender && ticketsToRender.length > 0) { %>
+                                                    <% ticketsToRender.forEach((ticket, index) => { %>
+                                                        <%
+                                                            // Determine if 'ticket' has 'type_id' (from formData) or 'ticketTypeId' (from enrichedEvent)
+                                                            const currentTicketTypeId = ticket.type_id || ticket.ticketTypeId;
+                                                            const currentTicketPrice = ticket.price;
+                                                            const currentTicketCount = ticket.count || ticket.ticketCount;
+                                                            const currentTicketType = ticket_types.find(tt => tt.id === currentTicketTypeId);
+                                                            const currentHasCount = currentTicketType?.has_ticket_count;
+                                                        %>
+                                                        <div class="row ticket-row align-items-end mb-2" data-index="<%= index %>">
+                                                            <div class="col-md-4">
+                                                                <label class="form-label">Ticket Type</label>
+                                                                <select name="tickets[<%= index %>][type_id]" class="form-control ticket-type-select" required>
+                                                                    <option value="">Select a type</option>
+                                                                    <% ticket_types.forEach(tt => { %>
+                                                                        <option value="<%= tt.id %>" data-has-count="<%= tt.has_ticket_count %>" <%= currentTicketTypeId == tt.id ? 'selected' : '' %>>
+                                                                            <%= tt.name %>
+                                                                        </option>
+                                                                    <% }); %>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <label class="form-label">Price</label>
+                                                                <input type="number" name="tickets[<%= index %>][price]" class="form-control" placeholder="Enter price" value="<%= currentTicketPrice %>" required>
+                                                            </div>
+                                                            <div class="col-md-3 ticket-count-wrapper" style="<%= currentHasCount ? 'display: block;' : 'display: none;' %>">
+                                                                <label class="form-label">Ticket Count</label>
+                                                                <input type="number" name="tickets[<%= index %>][count]" class="form-control" placeholder="Enter count" value="<%= currentTicketCount || '' %>" <%= currentHasCount ? 'required' : '' %>>
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <button type="button" class="btn btn-danger remove-ticket-btn">Remove</button>
+                                                            </div>
+                                                        </div>
+                                                    <% }); %>
+                                                <% } %>
+                                            </div>
+                                            <button type="button" class="btn btn-success" id="add-ticket-btn">+ Add</button>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary">Update</button>
+                                </form>
+                            </div>
+                            <div class="tab-pane " id="profile1">
+                                <form class="mt-4" method="POST" action="/event/update-event-seats/<%= enrichedEvent.id %>">
+                                 <div class="col-md-4 mb-3 mt-3">
+                                    <label class="form-label">Assign Ticket Type</label>
+                                    <select class="form-control" id="ticket-type-select" data-width="100%">
+                                         <option value="">Select Ticket Type</option>
+                                    </select>
+
+                                </div>   
+                                <% if (enrichedEvent.location ==  "BMICH") { %>
+                                    <%- include('../seat-maps/bmich.ejs') %>
+                                <% } %>
+                                <% if (enrichedEvent.location ==  "Nelum Pokuna") { %>
+                                    <%- include('../seat-maps/nelum.ejs') %>
+                                <% } %>
+                                 <% if (enrichedEvent.location ==  "Musaeus College") { %>
+                                    <%- include('../seat-maps/musaeus.ejs') %>
+                                <% } %>
+                             
+
+                                   
+                                    <input type="hidden" name="seat_configuration" id="seat_configuration" >   
+                                    <button type="submit" class="btn btn-primary mt-4">Save</button>
+                                </form>
+                            </div>
+                           
+                        </div>
+
+                            
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%- include('../layouts/footer.ejs') %>
+
+<script>
+ 
+    const ticketTypes = <%- JSON.stringify(ticket_types) %>;
+    let ticketIndex = 0; 
+
+    const existingTicketRows = document.querySelectorAll('.ticket-row');
+    if (existingTicketRows.length > 0) {
+        ticketIndex = existingTicketRows.length;
+    }
+
+    function createTicketRow(index, ticketData = {}) {
+        let options = '';
+        ticketTypes.forEach(tt => {
+
+            const isSelected = ticketData.type_id == tt.id || ticketData.ticketTypeId == tt.id;
+            options += `<option value="${tt.id}" data-has-count="${tt.has_ticket_count}" ${isSelected ? 'selected' : ''}>${tt.name}</option>`;
+        });
+
+        const initialHasCount = ticketTypes.find(tt => tt.id == (ticketData.type_id || ticketData.ticketTypeId))?.has_ticket_count || false;
+
+        return `
+            <div class="row ticket-row align-items-end mb-2" data-index="${index}">
+                <div class="col-md-4">
+                    <label class="form-label">Ticket Type</label>
+                    <select name="tickets[${index}][type_id]" class="form-control ticket-type-select" required>
+                        <option value="">Select a type</option>
+                        ${options}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Price</label>
+                    <input type="number" name="tickets[${index}][price]" class="form-control" placeholder="Enter price" value="${ticketData.price || ''}" required>
+                </div>
+                <div class="col-md-3 ticket-count-wrapper" style="${initialHasCount ? 'display: block;' : 'display: none;'}">
+                    <label class="form-label">Ticket Count</label>
+                    <input type="number" name="tickets[${index}][count]" class="form-control" placeholder="Enter count" value="${ticketData.count || ticketData.ticketCount || ''}" ${initialHasCount ? 'required' : ''}>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-danger remove-ticket-btn">Remove</button>
+                </div>
+            </div>
+        `;
+    }
+
+    document.getElementById('add-ticket-btn').addEventListener('click', () => {
+        const rowHtml = createTicketRow(ticketIndex++);
+        document.getElementById('ticket-container').insertAdjacentHTML('beforeend', rowHtml);
+    });
+
+    document.getElementById('ticket-container').addEventListener('change', function(e) {
+        if (e.target.classList.contains('ticket-type-select')) {
+            const row = e.target.closest('.ticket-row');
+            const selectedOption = e.target.selectedOptions[0];
+
+            const hasCount = selectedOption.dataset.hasCount === '1';
+            const countWrapper = row.querySelector('.ticket-count-wrapper');
+            const countInput = countWrapper.querySelector('input');
+
+            if (hasCount) {
+                countWrapper.style.display = 'block';
+                countInput.required = true;
+            } else {
+                countWrapper.style.display = 'none';
+                countInput.required = false;
+                countInput.value = ''; 
+            }
+        }
+    });
+
+    document.getElementById('ticket-container').addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-ticket-btn')) {
+            e.target.closest('.ticket-row').remove();
+
+        }
+    });
+
+
+
+</script>
+<!-- <script>
+ const seatTicketTypes = <%- JSON.stringify(enrichedEvent.ticket_details || []) %>;
+
+ console.log(seatTicketTypes);
+document.addEventListener('DOMContentLoaded', () => {
+  // Define your ticket types
+  // Added a default color for each ticket type for visual feedback
+ const ticketTypes = [
+            { price: 0, type_id: 0, count: null, has_ticket_count: false, isUnavailable: true }, // Black color for unavailable
+            ...seatTicketTypes 
+        ];
+
+  // Array to store selected seat data
+  // Initialize with any pre-existing configuration if you have it (e.g., loaded from a database)
+  const seatConfiguration = [];
+  let selectedTicketType = null; // To hold the currently chosen ticket type from the dropdown
+
+  const ticketTypeSelect = document.getElementById('ticket-type-select');
+  const seatConfigurationInput = document.getElementById('seat_configuration');
+  // Select all seat groups using the new class 'seat-group'
+  const seats = document.querySelectorAll('.seat-group');
+
+  // Populate the ticket type dropdown
+  ticketTypes.forEach((type) => {
+    const option = document.createElement('option');
+    // Store the entire object as a stringified JSON in the option's value
+    option.value = JSON.stringify(type);
+    option.textContent = type.ticketTypeName;
+    ticketTypeSelect.appendChild(option);
+  });
+
+  // Event listener for ticket type selection
+  ticketTypeSelect.addEventListener('change', (event) => {
+    if (event.target.value) {
+      selectedTicketType = JSON.parse(event.target.value);
+      console.log('Selected Ticket Type:', selectedTicketType);
+    } else {
+      selectedTicketType = null;
+      console.log('No ticket type selected. Please select a ticket type.');
+    }
+  });
+
+  // Event listener for seat clicks
+  seats.forEach((seatGroup) => {
+    // Add a class for styling (e.g., change cursor on hover)
+    seatGroup.classList.add('clickable-seat');
+    seatGroup.style.cursor = 'pointer'; // Visual cue that it's clickable
+
+    seatGroup.addEventListener('click', () => {
+      // Get the ID directly from the seat group element (e.g., "F1")
+      const seatId = seatGroup.id;
+
+      if (!selectedTicketType) {
+        alert('Please select a ticket type first from the dropdown!');
+        return;
+      }
+
+      // Find if the seat is already in the configuration
+      const existingSeatIndex = seatConfiguration.findIndex((seat) => seat.seatId === seatId);
+
+      // Get all child <path> elements within the seat group
+      const seatPaths = seatGroup.querySelectorAll('path');
+
+      if (existingSeatIndex > -1) {
+        // Seat already exists, remove it (effectively un-selecting)
+        seatConfiguration.splice(existingSeatIndex, 1);
+        // Revert seat color to default (original gray from your SVG)
+        seatPaths.forEach(path => {
+            path.style.fill = '#C4C4C4';
+        });
+      } else {
+        // Add the seat to the configuration
+        const newSeat = {
+          price: selectedTicketType.price,
+          seatId: seatId,
+          status: 'available', // You can change this to 'booked' or other initial status
+          type_id: selectedTicketType.type_id,
+          ticketTypeName: selectedTicketType.ticketTypeName,
+        };
+        seatConfiguration.push(newSeat);
+
+        // Change seat color to indicate selection with the selected ticket type's color
+        seatPaths.forEach(path => {
+            path.style.fill = selectedTicketType.color;
+        });
+      }
+
+      // Update the hidden input field with the JSON data
+      seatConfigurationInput.value = JSON.stringify(seatConfiguration, null, 2);
+      console.log('Current Seat Configuration:', seatConfiguration); // For debugging
+    });
+  });
+
+  // Optional: Add some basic CSS for hover effect on seats
+  const style = document.createElement('style');
+  style.innerHTML = `
+    .clickable-seat:hover {
+      opacity: 0.8; /* Dim on hover */
+      transition: opacity 0.2s ease-in-out;
+    }
+  `;
+  document.head.appendChild(style);
+});
+</script> -->
+<!-- <script>
+const mapedSeats = <%- JSON.stringify(enrichedEvent.seats) %>;
+console.log(mapedSeats);
+const seatTicketTypes = <%- JSON.stringify(enrichedEvent.ticket_details || []) %>;
+
+console.log(seatTicketTypes);
+document.addEventListener('DOMContentLoaded', () => {
+    // Define your ticket types
+    // Added a default color for each ticket type for visual feedback
+    const ticketTypes = [
+        { price: 0, type_id: 0, count: null, has_ticket_count: false, isUnavailable: true, ticketTypeName: 'Unavailable', color: '#000000' }, // Black color for unavailable
+        ...seatTicketTypes
+    ];
+
+    // Array to store selected seat data
+    // Initialize with any pre-existing configuration if you have it (e.g., loaded from a database)
+    const seatConfiguration = [];
+    let selectedTicketType = null; // To hold the currently chosen ticket type from the dropdown
+
+    const ticketTypeSelect = document.getElementById('ticket-type-select');
+    const seatConfigurationInput = document.getElementById('seat_configuration');
+    // Select all seat groups using the new class 'seat-group'
+    const seats = document.querySelectorAll('.seat-group');
+
+    // Populate the ticket type dropdown
+    ticketTypes.forEach((type) => {
+        const option = document.createElement('option');
+        // Store the entire object as a stringified JSON in the option's value
+        option.value = JSON.stringify(type);
+        option.textContent = type.ticketTypeName;
+        ticketTypeSelect.appendChild(option);
+    });
+
+    // Event listener for ticket type selection
+    ticketTypeSelect.addEventListener('change', (event) => {
+        if (event.target.value) {
+            selectedTicketType = JSON.parse(event.target.value);
+            console.log('Selected Ticket Type:', selectedTicketType);
+        } else {
+            selectedTicketType = null;
+            console.log('No ticket type selected. Please select a ticket type.');
+        }
+    });
+
+    // Function to update the visual state of a seat
+    function updateSeatVisual(seatGroup, ticketType) {
+        const seatPaths = seatGroup.querySelectorAll('path');
+        if (ticketType && ticketType.color) {
+            seatPaths.forEach(path => {
+                path.style.fill = ticketType.color;
+            });
+        } else {
+            // Default color if no specific ticket type or color is defined
+            seatPaths.forEach(path => {
+                path.style.fill = '#C4C4C4'; // Original gray
+            });
+        }
+    }
+
+    // Event listener for seat clicks
+    seats.forEach((seatGroup) => {
+        // Add a class for styling (e.g., change cursor on hover)
+        seatGroup.classList.add('clickable-seat');
+        seatGroup.style.cursor = 'pointer'; // Visual cue that it's clickable
+
+        seatGroup.addEventListener('click', () => {
+            // Get the ID directly from the seat group element (e.g., "F1")
+            const seatId = seatGroup.id;
+
+            if (!selectedTicketType) {
+                alert('Please select a ticket type first from the dropdown!');
+                return;
+            }
+
+            // Find if the seat is already in the configuration
+            const existingSeatIndex = seatConfiguration.findIndex((seat) => seat.seatId === seatId);
+
+            if (existingSeatIndex > -1) {
+                // Seat already exists in configuration
+
+                // If the selected ticket type is 'Unavailable' and the existing seat is also 'Unavailable',
+                // or if it's the same ticket type, then un-select it (revert to default)
+                if (selectedTicketType.isUnavailable && seatConfiguration[existingSeatIndex].status === 'unavailable' ||
+                    (!selectedTicketType.isUnavailable && seatConfiguration[existingSeatIndex].type_id === selectedTicketType.type_id)
+                ) {
+                    seatConfiguration.splice(existingSeatIndex, 1);
+                    updateSeatVisual(seatGroup, null); // Revert to default color
+                } else {
+                    // Update existing seat with the new selected ticket type
+                    seatConfiguration[existingSeatIndex].price = selectedTicketType.price;
+                    seatConfiguration[existingSeatIndex].type_id = selectedTicketType.type_id;
+                    seatConfiguration[existingSeatIndex].ticketTypeName = selectedTicketType.ticketTypeName;
+                    seatConfiguration[existingSeatIndex].status = selectedTicketType.isUnavailable ? 'unavailable' : 'available';
+                    updateSeatVisual(seatGroup, selectedTicketType);
+                }
+            } else {
+                // Seat does not exist, add it to the configuration
+                const newSeat = {
+                    price: selectedTicketType.price,
+                    seatId: seatId,
+                    status: selectedTicketType.isUnavailable ? 'unavailable' : 'available',
+                    type_id: selectedTicketType.type_id,
+                    ticketTypeName: selectedTicketType.ticketTypeName,
+                };
+                seatConfiguration.push(newSeat);
+                updateSeatVisual(seatGroup, selectedTicketType);
+            }
+
+            // Update the hidden input field with the JSON data
+            seatConfigurationInput.value = JSON.stringify(seatConfiguration, null, 2);
+            console.log('Current Seat Configuration:', seatConfiguration); // For debugging
+        });
+    });
+
+    // Optional: Add some basic CSS for hover effect on seats
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .clickable-seat:hover {
+            opacity: 0.8; /* Dim on hover */
+            transition: opacity 0.2s ease-in-out;
+        }
+    `;
+    document.head.appendChild(style);
+});
+</script> -->
+<script>
+const mapedSeats = JSON.parse(<%- JSON.stringify(enrichedEvent.seats || "[]") %>);
+const seatTicketTypes = <%- JSON.stringify(enrichedEvent.ticket_details || []) %>;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const ticketTypes = [
+        { price: 0, type_id: 0, count: null, has_ticket_count: false, isUnavailable: true, ticketTypeName: 'Unavailable', color: '#000000' }, // Black color for unavailable
+        ...seatTicketTypes
+    ];
+
+    // Initialize seatConfiguration with existing mapped seats
+    // Ensure that 'status' is properly set for initial load if not already present in mapedSeats
+    const seatConfiguration = mapedSeats.map(seat => {
+        // Find the corresponding ticket type from your defined ticketTypes
+        const ticketType = ticketTypes.find(type => type.type_id === seat.type_id);
+        const color = ticketType ? ticketType.color : '#C4C4C4'; // Default if type not found
+
+        // Add a default status if it's missing (though your sample data has it)
+        const status = seat.status || (ticketType && ticketType.isUnavailable ? 'unavailable' : 'available');
+
+        return {
+            ...seat,
+            color: color, // Store color for initial rendering
+            status: status // Ensure status is explicitly set
+        };
+    });
+
+    let selectedTicketType = null;
+
+    const ticketTypeSelect = document.getElementById('ticket-type-select');
+    const seatConfigurationInput = document.getElementById('seat_configuration');
+    const seats = document.querySelectorAll('.seat-group');
+
+    // Populate the ticket type dropdown
+    ticketTypes.forEach((type) => {
+        const option = document.createElement('option');
+        option.value = JSON.stringify(type);
+        option.textContent = type.ticketTypeName;
+        ticketTypeSelect.appendChild(option);
+    });
+
+    // Event listener for ticket type selection
+    ticketTypeSelect.addEventListener('change', (event) => {
+        if (event.target.value) {
+            selectedTicketType = JSON.parse(event.target.value);
+            console.log('Selected Ticket Type:', selectedTicketType);
+        } else {
+            selectedTicketType = null;
+            console.log('No ticket type selected. Please select a ticket type.');
+        }
+    });
+
+    // Function to update the visual state of a seat
+    function updateSeatVisual(seatGroup, ticketType) {
+        const seatPaths = seatGroup.querySelectorAll('path');
+        if (ticketType && ticketType.color) {
+            seatPaths.forEach(path => {
+                path.style.fill = ticketType.color;
+            });
+        } else {
+            // Default color if no specific ticket type or color is defined (e.g., when un-selecting)
+            seatPaths.forEach(path => {
+                path.style.fill = '#C4C4C4'; // Original gray
+            });
+        }
+    }
+
+    // --- Initial Rendering of Mapped Seats ---
+    seatConfiguration.forEach(configuredSeat => {
+        const seatGroup = document.getElementById(configuredSeat.seatId);
+        if (seatGroup) {
+            // Find the full ticket type object to get its color
+            const correspondingTicketType = ticketTypes.find(
+                type => type.type_id === configuredSeat.type_id
+            );
+            if (correspondingTicketType) {
+                updateSeatVisual(seatGroup, correspondingTicketType);
+            } else if (configuredSeat.status === 'unavailable') {
+                // If it's unavailable and no specific type found, use the default unavailable type
+                const unavailableType = ticketTypes.find(type => type.isUnavailable);
+                updateSeatVisual(seatGroup, unavailableType);
+            }
+            // Add initial cursor style
+            seatGroup.style.cursor = 'pointer';
+
+            // Visually mark "booked" or "issued" seats if desired
+            if (configuredSeat.status === 'booked' || configuredSeat.status === 'issued' || configuredSeat.status === 'pending') {
+                // You might want to add a different visual cue for these,
+                // e.g., a patterned fill or a slightly darker shade.
+                // For now, we'll just set the cursor to 'not-allowed'.
+                 seatGroup.style.cursor = 'not-allowed';
+                 // You could also add a class for specific styling
+                 // seatGroup.classList.add('seat-status-locked');
+            }
+        }
+    });
+
+
+    // Event listener for seat clicks
+    seats.forEach((seatGroup) => {
+        seatGroup.classList.add('clickable-seat'); // Add a class for styling
+        // Cursor is initially set during initial rendering or will be set by click handler
+
+        seatGroup.addEventListener('click', () => {
+            const seatId = seatGroup.id;
+
+            if (!selectedTicketType) {
+                alert('Please select a ticket type first from the dropdown!');
+                return;
+            }
+
+            const existingSeatIndex = seatConfiguration.findIndex((seat) => seat.seatId === seatId);
+            const currentSeatStatus = existingSeatIndex > -1 ? seatConfiguration[existingSeatIndex].status : null;
+
+            // --- Logic to prevent changing booked/issued seats ---
+            if (currentSeatStatus === 'booked' || currentSeatStatus === 'issued' || currentSeatStatus === 'pending') {
+                alert(`This seat is already ${currentSeatStatus} and cannot be changed.`);
+                return; 
+            }
+
+            if (existingSeatIndex > -1) {
+                // Seat already exists in configuration
+
+                // If the selected ticket type is 'Unavailable' and the existing seat is also 'Unavailable',
+                // or if it's the same ticket type, then un-select it (revert to default)
+                if (selectedTicketType.isUnavailable && seatConfiguration[existingSeatIndex].status === 'unavailable' ||
+                    (!selectedTicketType.isUnavailable && seatConfiguration[existingSeatIndex].type_id === selectedTicketType.type_id)
+                ) {
+                    seatConfiguration.splice(existingSeatIndex, 1);
+                    updateSeatVisual(seatGroup, null); // Revert to default color
+                } else {
+                    // Update existing seat with the new selected ticket type
+                    seatConfiguration[existingSeatIndex].price = selectedTicketType.price;
+                    seatConfiguration[existingSeatIndex].type_id = selectedTicketType.type_id;
+                    seatConfiguration[existingSeatIndex].ticketTypeName = selectedTicketType.ticketTypeName;
+                    seatConfiguration[existingSeatIndex].status = selectedTicketType.isUnavailable ? 'unavailable' : 'available';
+                    updateSeatVisual(seatGroup, selectedTicketType);
+                }
+            } else {
+                // Seat does not exist, add it to the configuration
+                const newSeat = {
+                    price: selectedTicketType.price,
+                    seatId: seatId,
+                    status: selectedTicketType.isUnavailable ? 'unavailable' : 'available',
+                    type_id: selectedTicketType.type_id,
+                    ticketTypeName: selectedTicketType.ticketTypeName,
+                };
+                seatConfiguration.push(newSeat);
+                updateSeatVisual(seatGroup, selectedTicketType);
+            }
+
+            // Update the hidden input field with the JSON data
+            seatConfigurationInput.value = JSON.stringify(seatConfiguration, null, 2);
+            console.log('Current Seat Configuration:', seatConfiguration); // For debugging
+        });
+    });
+
+    // Optional: Add some basic CSS for hover effect on seats
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .clickable-seat {
+            cursor: pointer;
+        }
+        .clickable-seat:hover {
+            opacity: 0.8; /* Dim on hover */
+            transition: opacity 0.2s ease-in-out;
+        }
+        /* Optional: Styles for locked seats */
+        .seat-status-locked {
+            cursor: not-allowed !important;
+            filter: grayscale(50%); /* Example: make them a bit desaturated */
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Initial population of the hidden input field
+    seatConfigurationInput.value = JSON.stringify(seatConfiguration, null, 2);
+    console.log('Initial Seat Configuration:', seatConfiguration);
+});
+</script>

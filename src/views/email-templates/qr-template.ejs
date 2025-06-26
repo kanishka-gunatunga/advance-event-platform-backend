@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Event QR Tickets</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        p {
+            margin-bottom: 10px;
+        }
+        .qr-section {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        .qr-item {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .qr-item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #777;
+        }
+        .contact-info {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div stlye="text-align:center;">
+        <img src="https://quick-seats-backend.vercel.app/assets/images/quickseatslogo.png" alt="" style="width:200px;margin-bottom:15px;">
+        </div>
+        <h2>Booking Confirmation</h2>
+        <p>Hey <b><%= first_name %>,</b> Thank you for your recent booking! Here are your QR tickets for the event. Please keep this email safe as it contains your entry tickets.</p>
+        <p>If you have any questions, feel free to contact us.</p>
+        <hr>
+        <p><b>Event : </b><%= event_name %></p>
+        <p><b>Booked Seats : </b><%= booked_seats_details %></p>
+        <div class="qr-section">
+            <h4>QR Codes:</h4>
+            <% qrCodes.forEach((qr, index) => { %>
+                <div class="qr-item">
+                    <p><strong><%= qr.ticketTypeName %></strong> - <%= qr.count %> ticket(s)</p>
+                    <img src="cid:qr<%= index %>@event.com" alt="QR Code for <%= qr.ticketTypeName %>" />
+                </div>
+            <% }); %>
+        </div>
+        <p>We look forward to seeing you at the event!</p>
+        <div class="contact-info">
+            <p>For support, contact us at: <a href="mailto:info@quickseats.lk">info@quickseats.lk</a> or call us at 011121451242</p>
+            <p>Read our <a href="#" target="_blank">Privacy Policy</a></p>
+        </div>
+        <div class="footer">
+            <p>&copy; <%= new Date().getFullYear() %> Quick Tickets. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
