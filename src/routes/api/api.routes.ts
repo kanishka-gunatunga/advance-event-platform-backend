@@ -1,7 +1,7 @@
 import express from 'express';
 import { login, customerRegister,organizationRegister, venueRegister,marketingRegister,artistRegister, googleAuth, updateProfileSettings,
 updateSecuritySettings,bookingHistory,paymentHistory,getUserDetails,forgotPassword, validateOtp, resetPassword,resendOtp } from '../../controllers/api/userController';
-import { createTicketType, getTicketTypes, activateTicketType, deactivateTicketType ,editTicketType} from '../../controllers/api/ticketTypeController';
+import { createTicketType, getTicketTypes, activateTicketType, deactivateTicketType ,editTicketTypeGet, editTicketTypePost} from '../../controllers/api/ticketTypeController';
 import { getAllEvents,getTrendingEvents,getUpcomingEvents,getEventDetails,getEventSeats,getLocations,getArtists } from '../../controllers/api/eventController';
 import { checkout} from '../../controllers/api/checkoutController';
 import { selectSeat,resetSeats,unselectSeat} from '../../controllers/api/seatController';
@@ -50,6 +50,7 @@ router.post('/auth/google', googleAuth);
 //Ticket Type
 router.post('/create-ticket-type',authenticate, createTicketType);
 router.get('/get-user-ticket-types/:id',authenticate, getTicketTypes);
-
+router.get('/edit-ticket-type/:id',authenticate, editTicketTypeGet);
+router.post('/edit-ticket-type/:id',authenticate, editTicketTypePost);
 export default router;
  
