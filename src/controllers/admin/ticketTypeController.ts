@@ -69,7 +69,17 @@ export const addTicketTypePost = async (req: Request, res: Response) => {
 
 export const ticketTypes = async (req: Request, res: Response) => {
   const ticketTypes = await prisma.ticketType.findMany({ });
-  return res.status(200).json(ticketTypes);
+
+  const error = req.session.error;
+  const success = req.session.success;
+  req.session.error = undefined;
+  req.session.success = undefined;
+
+  res.render('event/ticket-types', {
+    error,
+    success,
+    ticketTypes,
+  });
 };
 
 
