@@ -32,7 +32,7 @@ export const customerRegister = async (req: Request, res: Response) => {
     errors: result.error.flatten(),
   });
   }
-  const { email, password, confirm_password, first_name, last_name, contact_number} =  result.data;
+  const { email, password, first_name, last_name, contact_number} =  result.data;
 
   try {
     const userExists = await prisma.user.findUnique({ where: { email } });
@@ -53,7 +53,7 @@ export const customerRegister = async (req: Request, res: Response) => {
       },
     });
 
-    await prisma.customerserDetails.create({
+    await prisma.customerDetails.create({
       data: {
         user_id: user.id,
         first_name,
@@ -145,7 +145,6 @@ export const updateProfileSettings = async (req: Request, res: Response) => {
       last_name: z.string().min(1, 'Last name is required'),
       contact_number: z.string().min(1, 'Contact number is required'),
       email: z.string({ required_error: 'Email is required' }).email('Invalid email format'),
-      nic_passport: z.string().optional(),
       country: z.string().optional(),
       gender: z.string().optional(),
       dob: z.preprocess(
@@ -158,8 +157,7 @@ export const updateProfileSettings = async (req: Request, res: Response) => {
       },
       z.date().optional()
     ),
-      address_line1: z.string().optional(),
-      address_line2: z.string().optional(),
+      address: z.string().optional(),
       city: z.string().optional(),
     });
 
@@ -173,7 +171,7 @@ export const updateProfileSettings = async (req: Request, res: Response) => {
   });
   }
 
-  const { first_name, last_name, contact_number, email, nic_passport, country, gender, dob, address_line1, address_line2, city } = result.data;
+  const { first_name, last_name, contact_number, email, country, gender, dob, address, city } = result.data;
 
   try {
     const user = await prisma.user.findUnique({
@@ -199,18 +197,16 @@ export const updateProfileSettings = async (req: Request, res: Response) => {
       },
     });
 
-    await prisma.customerserDetails.update({
+    await prisma.customerDetails.update({
       where: { user_id: userId },
       data: {
         first_name,
         last_name,
         contact_number,
-        nic_passport,
         country,
         gender,
         dob,
-        address_line1,
-        address_line2,
+        address,
         city,
       },
     });
