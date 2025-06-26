@@ -210,7 +210,7 @@ export const venueRegister = async (req: Request, res: Response) => {
       data: {
         email,
         password: hashedPassword,
-        user_role: 5,
+        user_role: 4,
         is_verified: 0,
         otp: null,
         status: 'active',
@@ -300,7 +300,7 @@ export const marketingRegister = async (req: Request, res: Response) => {
       data: {
         email,
         password: hashedPassword,
-        user_role: 4,
+        user_role: 5,
         is_verified: 0,
         otp: null,
         status: 'active',
@@ -316,6 +316,89 @@ export const marketingRegister = async (req: Request, res: Response) => {
         last_name,
         contact_number,
         referral_code
+      },
+    });
+
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    const templatePath = path.join(__dirname, '../../views/email-templates/confirm-email-template.ejs');
+    const emailHtml = await ejs.renderFile(templatePath, {
+        otp: otp,
+    });
+
+    await transporter.sendMail({
+        from: `"${process.env.MAIL_FROM_NAME}" <${process.env.MAIL_FROM_ADDRESS}>`,
+        to: email,
+        subject: 'Confirm Your Account',
+        html: emailHtml,
+    });
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        otp: otp,
+        otp_expires_at: otpExpiresAt,
+      },
+    });
+
+    return res.status(201).json({ message: 'User registered successfully. Please confirm your account to login.' });
+  } catch (err) {
+    console.error('Registration error:', err);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+
+export const artistRegister = async (req: Request, res: Response) => {
+    const schema = z
+    .object({
+      artist_name: z.string().min(1, 'Venue name is required'),
+      contact_number: z.string().min(1, 'Contact number is required'),
+      email: z.string({ required_error: 'Email is required' }).email('Invalid email format'),
+      password: z.string().min(6, 'Password must be at least 6 characters'),
+      confirm_password: z.string().min(1, 'Confirm password is required'),
+    })
+    .refine((data) => data.password === data.confirm_password, {
+      path: ['confirm_password'],
+      message: 'Passwords do not match',
+    });
+
+  const result = schema.safeParse(req.body);
+
+  if (!result.success) {
+    return res.status(400).json({
+    message: 'Invalid input',
+    errors: result.error.flatten(),
+  });
+  }
+  const { email, password, contact_number, artist_name} =  result.data;
+
+  try {
+    const userExists = await prisma.user.findUnique({ where: { email } });
+    if (userExists) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        user_role: 6,
+        is_verified: 0,
+        otp: null,
+        status: 'active',
+      },
+    });
+
+    await prisma.artistDetails.create({
+      data: {
+        user_id: user.id,
+        contact_number,
+        artist_name,
       },
     });
 

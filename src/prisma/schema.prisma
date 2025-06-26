@@ -34,9 +34,11 @@ model User {
   organizationDetails OrganizationDetails?
   venueDetails VenueDetails?
   marketingDetails MarketingDetails?
+  artistDetails ArtistDetails?
   adminDetails AdminDetails?
   staffDetails StaffDetails?
 }
+
 
 model CustomerDetails {
   id        Int      @id @default(autoincrement())
@@ -86,6 +88,19 @@ model MarketingDetails {
   referral_code  String  @unique
   first_name  String?
   last_name  String?
+  contact_number  String?
+  country String?
+  address  String?
+  city  String?
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [user_id], references: [id])
+}
+
+model ArtistDetails {
+  id        Int      @id @default(autoincrement())
+  user_id     Int   @unique
+  artist_name  String?
   contact_number  String?
   country String?
   address  String?
