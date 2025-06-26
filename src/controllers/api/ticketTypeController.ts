@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 export const createTicketType = async (req: Request, res: Response) => {
   const schema = z
     .object({
-      user_id: z.number().min(1, 'User ID is required'),
+      user_id: z.string().min(1, 'User ID is required'),
       name: z.string().min(1, 'Name is required'),
       color: z.string().min(1, 'Color is required'),
     });
@@ -28,7 +28,7 @@ export const createTicketType = async (req: Request, res: Response) => {
   try {
     await prisma.ticketType.create({
       data: {
-        user_id,
+        user_id:parseInt(user_id),
         name,
         color,
         status: 'active',
