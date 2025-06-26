@@ -58,8 +58,6 @@ model OrganizationDetails {
   id        Int      @id @default(autoincrement())
   user_id     Int   @unique
   organization_name  String?
-  first_name  String?
-  last_name  String?
   contact_number  String?
   country String?
   address  String?
@@ -73,8 +71,6 @@ model VenueDetails {
   id        Int      @id @default(autoincrement())
   user_id     Int   @unique
   venue_name  String?
-  first_name  String?
-  last_name  String?
   contact_number  String?
   country String?
   address  String?

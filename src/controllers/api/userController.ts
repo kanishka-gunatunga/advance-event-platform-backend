@@ -96,8 +96,6 @@ export const organizationRegister = async (req: Request, res: Response) => {
     const schema = z
     .object({
       organization_name: z.string().min(1, 'Organization name is required'),
-      first_name: z.string().min(1, 'First name is required'),
-      last_name: z.string().min(1, 'Last name is required'),
       contact_number: z.string().min(1, 'Contact number is required'),
       email: z.string({ required_error: 'Email is required' }).email('Invalid email format'),
       password: z.string().min(6, 'Password must be at least 6 characters'),
@@ -116,7 +114,7 @@ export const organizationRegister = async (req: Request, res: Response) => {
     errors: result.error.flatten(),
   });
   }
-  const { email, password, first_name, last_name, contact_number, organization_name} =  result.data;
+  const { email, password, contact_number, organization_name} =  result.data;
 
   try {
     const userExists = await prisma.user.findUnique({ where: { email } });
@@ -140,8 +138,6 @@ export const organizationRegister = async (req: Request, res: Response) => {
     await prisma.organizationDetails.create({
       data: {
         user_id: user.id,
-        first_name,
-        last_name,
         contact_number,
         organization_name,
       },
@@ -182,8 +178,6 @@ export const venueRegister = async (req: Request, res: Response) => {
     const schema = z
     .object({
       venue_name: z.string().min(1, 'Venue name is required'),
-      first_name: z.string().min(1, 'First name is required'),
-      last_name: z.string().min(1, 'Last name is required'),
       contact_number: z.string().min(1, 'Contact number is required'),
       email: z.string({ required_error: 'Email is required' }).email('Invalid email format'),
       password: z.string().min(6, 'Password must be at least 6 characters'),
@@ -202,7 +196,7 @@ export const venueRegister = async (req: Request, res: Response) => {
     errors: result.error.flatten(),
   });
   }
-  const { email, password, first_name, last_name, contact_number, venue_name} =  result.data;
+  const { email, password, contact_number, venue_name} =  result.data;
 
   try {
     const userExists = await prisma.user.findUnique({ where: { email } });
@@ -216,7 +210,7 @@ export const venueRegister = async (req: Request, res: Response) => {
       data: {
         email,
         password: hashedPassword,
-        user_role: 4,
+        user_role: 5,
         is_verified: 0,
         otp: null,
         status: 'active',
@@ -226,8 +220,6 @@ export const venueRegister = async (req: Request, res: Response) => {
     await prisma.venueDetails.create({
       data: {
         user_id: user.id,
-        first_name,
-        last_name,
         contact_number,
         venue_name,
       },
@@ -268,7 +260,7 @@ const generateReferralCode = (userId: number): string => {
   const userIdPart = userId.toString(36).toUpperCase();
   const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
 
-  return `MKT-REF-${userIdPart}-${randomPart}`;
+  return `MKTREF${userIdPart}${randomPart}`;
 };
 
 export const marketingRegister = async (req: Request, res: Response) => {
