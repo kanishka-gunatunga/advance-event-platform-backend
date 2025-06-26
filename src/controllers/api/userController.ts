@@ -593,13 +593,17 @@ if (!result.success) {
 
   const { email, password } = result.data;
 
-  const user = await prisma.user.findUnique({ where: { email },include: { customerserDetails: true }, });
+  const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
     return res.status(400).json({ message: 'Invalid credentials' });
   }
 
   if (user.is_verified == 0) {
     return res.status(400).json({ message: 'Please verify your account to login' });
+  }
+  if (user.password === null) {
+  console.log('User account has no password. Please use alternative login method.');
+  return;
   }
   const validPassword = await bcrypt.compare(password, user.password);
   if (!validPassword) {
