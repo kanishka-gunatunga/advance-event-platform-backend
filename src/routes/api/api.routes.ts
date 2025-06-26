@@ -52,5 +52,7 @@ router.post('/create-ticket-type',authenticate, createTicketType);
 router.get('/get-user-ticket-types/:id',authenticate, getTicketTypes);
 router.get('/edit-ticket-type/:id',authenticate, editTicketTypeGet);
 router.post('/edit-ticket-type/:id',authenticate, editTicketTypePost);
+router.get('/activate-ticket-type/:id',authenticate, activateTicketType);
+router.get('/deactivate-ticket-type/:id',authenticate, deactivateTicketType);
 export default router;
  

@@ -97,7 +97,35 @@ export const editTicketTypePost = async (req: Request, res: Response) => {
       },
     });
 
-     return res.status(200).json({ message: 'Ticket updated added successfully.' });
+     return res.status(200).json({ message: 'Ticket type updated  successfully.' });
+  } catch (err) {
+    console.error('Error :', err);
+    return res.status(500).json({ message: 'An unexpected error occurred.' });
+  }
+};
+
+export const activateTicketType = async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  try {
+    await prisma.ticketType.update({
+      where: { id },
+      data: { status: 'active' },
+    });
+   return res.status(200).json({ message: 'Ticket type activated successfully.' });
+  } catch (err) {
+    console.error('Error :', err);
+    return res.status(500).json({ message: 'An unexpected error occurred.' });
+  }
+};
+
+export const deactivateTicketType = async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  try {
+    await prisma.ticketType.update({
+      where: { id },
+      data: { status: 'inactive' },
+    });
+   return res.status(200).json({ message: 'Ticket type deactivated successfully.' });
   } catch (err) {
     console.error('Error :', err);
     return res.status(500).json({ message: 'An unexpected error occurred.' });
