@@ -1,6 +1,7 @@
 import express from 'express';
 import { login, customerRegister,organizationRegister, venueRegister,marketingRegister,artistRegister, googleAuth, updateProfileSettings,
 updateSecuritySettings,bookingHistory,paymentHistory,getUserDetails,forgotPassword, validateOtp, resetPassword,resendOtp } from '../../controllers/api/userController';
+import { createTicketType, ticketTypes, activateTicketType, deactivateTicketType ,editTicketType} from '../../controllers/api/ticketTypeController';
 import { getAllEvents,getTrendingEvents,getUpcomingEvents,getEventDetails,getEventSeats,getLocations,getArtists } from '../../controllers/api/eventController';
 import { checkout} from '../../controllers/api/checkoutController';
 import { selectSeat,resetSeats,unselectSeat} from '../../controllers/api/seatController';
@@ -44,6 +45,10 @@ router.post('/checkout', checkout);
 //Google Auth
 router.post('/auth/google', googleAuth);
 
+
+//Event Related CRUD
+//Ticket Type
+router.post('/create-ticket-type',authenticate, createTicketType);
 
 export default router;
  

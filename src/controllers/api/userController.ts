@@ -664,7 +664,7 @@ export const updateProfileSettings = async (req: Request, res: Response) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: { customerserDetails: true },
+      include: { customerDetails: true },
     });
 
     if (!user) {
@@ -741,7 +741,7 @@ export const updateSecuritySettings = async (req: Request, res: Response) => {
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: { customerserDetails: true },
+      include: { customerDetails: true },
     });
 
     if (!user) {
