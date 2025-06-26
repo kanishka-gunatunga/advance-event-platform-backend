@@ -63,6 +63,7 @@ export const customerRegister = async (req: Request, res: Response) => {
     });
 
     const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     const templatePath = path.join(__dirname, '../../views/email-templates/confirm-email-template.ejs');
     const emailHtml = await ejs.renderFile(templatePath, {
@@ -79,7 +80,8 @@ export const customerRegister = async (req: Request, res: Response) => {
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        otp: otp
+        otp: otp,
+        otp_expires_at: otpExpiresAt,
       },
     });
 
@@ -442,7 +444,6 @@ export const forgotPassword = async (req: Request, res: Response) => {
   }
 };
 
-
 export const validateOtp = async (req: Request, res: Response) => {
   const schema = z.object({
     email: z.string({ required_error: 'Email is required' }).email('Invalid email format'),
@@ -464,53 +465,70 @@ export const validateOtp = async (req: Request, res: Response) => {
   try {
     const user = await prisma.user.findUnique({
       where: { email },
-      include: { customerserDetails: true }
+      include: { customerDetails: true } // Corrected typo here, assuming your model is 'customerDetails'
     });
 
     if (!user || !user.otp) {
       return res.status(400).json({ message: 'Invalid email address or OTP not requested.' });
     }
-    if (!user.customerserDetails) {
+    if (!user.customerDetails) { // Corrected typo
       return res.status(400).json({ message: 'Invalid email address or OTP not requested.' });
+    }
+
+    // Check if OTP has expired
+    if (user.otp_expires_at && new Date() > user.otp_expires_at) {
+      // Clear expired OTP to prevent future validation attempts with it
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          otp: null,
+          otp_expires_at: null,
+        },
+      });
+      return res.status(400).json({ message: 'OTP has expired. Please request a new one.' });
     }
 
     if (user.otp !== otp) {
       return res.status(400).json({ message: 'Invalid OTP.' });
     }
-    if(otp_type == 'register'){
-    await prisma.user.update({
+
+    // OTP is valid and not expired
+    if (otp_type === 'register') {
+      await prisma.user.update({
         where: { id: user.id },
         data: {
-          otp: null,
+          otp: null, // Clear OTP after successful validation
+          otp_expires_at: null, // Clear expiration time
           is_verified: 1,
-      },
-    });
+        },
+      });
 
-    const templatePath = path.join(__dirname, '../../views/email-templates/register-success-template.ejs');
-    
-    const emailHtml = await ejs.renderFile(templatePath, {
-        first_name: user.customerserDetails.first_name,
-    });
+      const templatePath = path.join(__dirname, '../../views/email-templates/register-success-template.ejs');
 
-    await transporter.sendMail({
+      const emailHtml = await ejs.renderFile(templatePath, {
+        first_name: user.customerDetails.first_name, // Corrected typo
+      });
+
+      await transporter.sendMail({
         from: `"${process.env.MAIL_FROM_NAME}" <${process.env.MAIL_FROM_ADDRESS}>`,
         to: email,
         subject: 'Welcome to Quick Tickets!',
         html: emailHtml,
-    });
-    return res.status(200).json({ message: 'OTP validated successfully.',type: otp_type });
-    }
-    else{
-    await prisma.user.update({
+      });
+
+      return res.status(200).json({ message: 'OTP validated successfully. Account verified.', type: otp_type });
+    } else {
+      // For other OTP types (e.g., password reset), just clear the OTP
+      await prisma.user.update({
         where: { id: user.id },
         data: {
           otp: null,
-      },
-    });
-    return res.status(200).json({ message: 'OTP validated successfully.',type: otp_type });
+          otp_expires_at: null, // Clear expiration time
+        },
+      });
+      return res.status(200).json({ message: 'OTP validated successfully.', type: otp_type });
     }
 
-    
   } catch (err) {
     console.error('Error during OTP validation:', err);
     return res.status(500).json({ message: 'An unexpected error occurred.' });
@@ -564,7 +582,6 @@ export const resetPassword = async (req: Request, res: Response) => {
   }
 };
 
-
 export const resendOtp = async (req: Request, res: Response) => {
   const schema = z.object({
     email: z.string({ required_error: 'Email is required' }).email('Invalid email format'),
@@ -592,28 +609,31 @@ export const resendOtp = async (req: Request, res: Response) => {
 
     const otp = Math.floor(1000 + Math.random() * 9000).toString();
 
+    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); 
+
     const templatePath = path.join(__dirname, '../../views/email-templates/resend-otp-template.ejs');
     const emailHtml = await ejs.renderFile(templatePath, {
-        otp: otp,
+      otp: otp,
     });
 
     await transporter.sendMail({
-        from: `"${process.env.MAIL_FROM_NAME}" <${process.env.MAIL_FROM_ADDRESS}>`,
-        to: email,
-        subject: 'OTP Resend Request',
-        html: emailHtml,
+      from: `"${process.env.MAIL_FROM_NAME}" <${process.env.MAIL_FROM_ADDRESS}>`,
+      to: email,
+      subject: 'OTP Resend Request',
+      html: emailHtml,
     });
 
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        otp: otp
+        otp: otp,
+        otp_expires_at: otpExpiresAt, // Store the new expiration time
       },
     });
 
-    return res.status(200).json({ message: 'OTP sent to your email.' });
+    return res.status(200).json({ message: 'New OTP sent to your email and is valid for 10 minutes.' });
   } catch (err) {
-    console.error('Error during forgot password process:', err);
+    console.error('Error during resend OTP process:', err);
     return res.status(500).json({ message: 'An unexpected error occurred.' });
   }
 };

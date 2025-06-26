@@ -26,10 +26,11 @@ model User {
   user_role  Int
   is_verified  Int?
   otp      String?
+  otp_expires_at DateTime?
   status String
   createdAt DateTime @default(now())
 
-  customerserDetails CustomerDetails?
+  customerDetails CustomerDetails?
   adminDetails AdminDetails?
   staffDetails StaffDetails?
 }
