@@ -44,7 +44,7 @@ const createMovieEvent = async (req: Request, res: Response) => {
       user_id: z.string().min(1, 'User ID is required'),
       name: z.string().min(1, 'Name is required'),
       description: z.string().optional(),
-      trailer_links: z.array(z.string()).optional(),
+      trailer_links: z.string().optional(),
     });
 
   const result = schema.safeParse(req.body);
