@@ -1,8 +1,127 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-
+import { z } from 'zod';
+import { put } from '@vercel/blob';
+import { del } from '@vercel/blob';
+import slugify from 'slugify';
 
 const prisma = new PrismaClient();
+
+export const createEvent = async (req: Request, res: Response) => {
+  const schema = z
+    .object({
+      user_id: z.string().min(1, 'User ID is required'),
+      event_type: z.string().min(1, 'Event type is required'),
+    });
+
+  const result = schema.safeParse(req.body);
+
+  if (!result.success) {
+    return res.status(400).json({
+      message: 'Invalid input',
+      errors: result.error.flatten(),
+    });
+  }
+
+
+  const { user_id, event_type} = result.data;
+
+  switch (event_type) {
+    case 'movie':
+      return createMovieEvent(req, res);
+    case 'concert':
+
+    case 'sport':
+
+    default:
+      return res.status(400).json({ message: 'Invalid event type provided.' });
+  }
+};
+
+const createMovieEvent = async (req: Request, res: Response) => {
+  const schema = z
+    .object({
+      user_id: z.string().min(1, 'User ID is required'),
+      name: z.string().min(1, 'Name is required'),
+      description: z.string().optional(),
+      trailer_links: z.array(z.string()).optional(),
+    });
+
+  const result = schema.safeParse(req.body);
+
+  if (!result.success) {
+    return res.status(400).json({
+      message: 'Invalid input for movie event',
+      errors: result.error.flatten(),
+    });
+  }
+
+  const { user_id, name, description, trailer_links } = result.data;
+
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  const featuredImageFile = files?.featured_image?.[0];
+
+  let featuredImageUrl: string | null = null;
+
+  if (featuredImageFile) {
+    if (!featuredImageFile.mimetype.startsWith('image/')) {
+      return res.status(400).json({
+        message: 'Invalid input for movie event',
+        errors: {
+          formErrors: [],
+          fieldErrors: {
+            featured_image: ['Featured image must be an image file.'],
+          },
+        },
+      });
+    }
+    try {
+      const { url } = await put(featuredImageFile.originalname, featuredImageFile.buffer, {
+        access: 'public',
+        addRandomSuffix: true,
+      });
+      featuredImageUrl = url;
+    } catch (uploadError) {
+      console.error('Error uploading featured image:', uploadError);
+      return res.status(500).json({ message: 'Failed to upload featured image.' });
+    }
+  } else {
+    return res.status(400).json({
+      message: 'Invalid input for movie event',
+      errors: {
+        formErrors: [],
+        fieldErrors: {
+          featured_image: ['Featured image is required.'],
+        },
+      },
+    });
+  }
+  let baseSlug = slugify(name, { lower: true, strict: true });
+  let uniqueSlug = baseSlug;
+  let suffix = 1;
+
+  while (await prisma.event.findUnique({ where: { slug: uniqueSlug } })) {
+    uniqueSlug = `${baseSlug}-${suffix++}`;
+  }
+  try {
+    const movieEvent = await prisma.event.create({
+      data: {
+        user_id: parseInt(user_id),
+        event_type: 'movie',
+        name,
+        slug: uniqueSlug, 
+        description: description || null, 
+        featured_image: featuredImageUrl, 
+        trailer_links: trailer_links && trailer_links.length > 0 ? trailer_links : null,
+        status: 'active', 
+      },
+    });
+    return res.status(201).json({ message: 'Movie event created successfully'});
+  } catch (error) {
+    console.error('Error creating movie event:', error);
+    return res.status(500).json({ message: 'Failed to create movie event' });
+  }
+};
 
 export const getAllEvents = async (req: Request, res: Response) => {
   try {
