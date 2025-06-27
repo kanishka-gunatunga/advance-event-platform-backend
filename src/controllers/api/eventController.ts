@@ -45,15 +45,15 @@ const createMovieEvent = async (req: Request, res: Response) => {
       name: z.string().min(1, 'Name is required'),
       description: z.string().optional(),
       trailer_links: z.preprocess((val) => {
-            if (typeof val === 'string') {
-                try {
-                    return JSON.parse(val);
-                } catch {
-                    return [];
-                }
-            }
-            return val;
-        }, z.array(z.union([z.number(), z.string()])).optional()),
+        if (typeof val === 'string') {
+          try {
+            return JSON.parse(val); 
+          } catch {
+            return []; 
+          }
+        }
+        return val;
+      }, z.array(z.union([z.number(), z.string()])).optional()),
     });
 
   const result = schema.safeParse(req.body);
