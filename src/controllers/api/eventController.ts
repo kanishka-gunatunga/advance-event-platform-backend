@@ -44,7 +44,16 @@ const createMovieEvent = async (req: Request, res: Response) => {
       user_id: z.string().min(1, 'User ID is required'),
       name: z.string().min(1, 'Name is required'),
       description: z.string().optional(),
-      trailer_links: z.string().optional(),
+      trailer_links: z.preprocess((val) => {
+            if (typeof val === 'string') {
+                try {
+                    return JSON.parse(val);
+                } catch {
+                    return [];
+                }
+            }
+            return val;
+        }, z.array(z.union([z.number(), z.string()])).optional()),
     });
 
   const result = schema.safeParse(req.body);
@@ -104,7 +113,7 @@ const createMovieEvent = async (req: Request, res: Response) => {
     uniqueSlug = `${baseSlug}-${suffix++}`;
   }
   try {
-    const movieEvent = await prisma.event.create({
+    await prisma.event.create({
       data: {
         user_id: parseInt(user_id),
         event_type: 'movie',
@@ -112,7 +121,7 @@ const createMovieEvent = async (req: Request, res: Response) => {
         slug: uniqueSlug, 
         description: description || null, 
         featured_image: featuredImageUrl, 
-        trailer_links: trailer_links && trailer_links.length > 0 ? trailer_links : null,
+        trailer_links: trailer_links,
         status: 'active', 
       },
     });
