@@ -33,6 +33,8 @@ export const createEvent = async (req: Request, res: Response) => {
       return createDramaEvent(req, res);
     case 'concert':
       return createConcertEvent(req, res);
+    case 'gaming':
+      return createGamingEvent(req, res);
     default:
       return res.status(400).json({ message: 'Invalid event type provided.' });
   }
@@ -60,7 +62,7 @@ const createMovieEvent = async (req: Request, res: Response) => {
 
   if (!result.success) {
     return res.status(400).json({
-      message: 'Invalid input for movie event',
+      message: 'Invalid input for event',
       errors: result.error.flatten(),
     });
   }
@@ -75,7 +77,7 @@ const createMovieEvent = async (req: Request, res: Response) => {
   if (featuredImageFile) {
     if (!featuredImageFile.mimetype.startsWith('image/')) {
       return res.status(400).json({
-        message: 'Invalid input for movie event',
+        message: 'Invalid input for event',
         errors: {
           formErrors: [],
           fieldErrors: {
@@ -96,7 +98,7 @@ const createMovieEvent = async (req: Request, res: Response) => {
     }
   } else {
     return res.status(400).json({
-      message: 'Invalid input for movie event',
+      message: 'Invalid input for event',
       errors: {
         formErrors: [],
         fieldErrors: {
@@ -125,10 +127,10 @@ const createMovieEvent = async (req: Request, res: Response) => {
         status: 'active', 
       },
     });
-    return res.status(201).json({ message: 'Movie event created successfully'});
+    return res.status(201).json({ message: 'Event created successfully'});
   } catch (error) {
-    console.error('Error creating movie event:', error);
-    return res.status(500).json({ message: 'Failed to create movie event' });
+    console.error('Error creating  event:', error);
+    return res.status(500).json({ message: 'Failed to create  event' });
   }
 };
 
@@ -154,7 +156,7 @@ const createDramaEvent = async (req: Request, res: Response) => {
 
   if (!result.success) {
     return res.status(400).json({
-      message: 'Invalid input for drama event',
+      message: 'Invalid input for  event',
       errors: result.error.flatten(),
     });
   }
@@ -169,7 +171,7 @@ const createDramaEvent = async (req: Request, res: Response) => {
   if (featuredImageFile) {
     if (!featuredImageFile.mimetype.startsWith('image/')) {
       return res.status(400).json({
-        message: 'Invalid input for drama event',
+        message: 'Invalid input for  event',
         errors: {
           formErrors: [],
           fieldErrors: {
@@ -190,7 +192,7 @@ const createDramaEvent = async (req: Request, res: Response) => {
     }
   } else {
     return res.status(400).json({
-      message: 'Invalid input for drama event',
+      message: 'Invalid input for  event',
       errors: {
         formErrors: [],
         fieldErrors: {
@@ -244,10 +246,10 @@ const createDramaEvent = async (req: Request, res: Response) => {
       }
     }
 
-    return res.status(201).json({ message: 'Drama event created successfully', event: newEvent });
+    return res.status(201).json({ message: 'Event created successfully', event: newEvent });
   } catch (error) {
-    console.error('Error creating drama event:', error);
-    return res.status(500).json({ message: 'Failed to create drama event' });
+    console.error('Error creating  event:', error);
+    return res.status(500).json({ message: 'Failed to create  event' });
   }
 };
 
@@ -294,7 +296,7 @@ const createConcertEvent = async (req: Request, res: Response) => {
 
   if (!result.success) {
     return res.status(400).json({
-      message: 'Invalid input for drama event',
+      message: 'Invalid input for  event',
       errors: result.error.flatten(),
     });
   }
@@ -309,7 +311,7 @@ const createConcertEvent = async (req: Request, res: Response) => {
   if (featuredImageFile) {
     if (!featuredImageFile.mimetype.startsWith('image/')) {
       return res.status(400).json({
-        message: 'Invalid input for drama event',
+        message: 'Invalid input for  event',
         errors: {
           formErrors: [],
           fieldErrors: {
@@ -330,7 +332,7 @@ const createConcertEvent = async (req: Request, res: Response) => {
     }
   } else {
     return res.status(400).json({
-      message: 'Invalid input for drama event',
+      message: 'Invalid input for  event',
       errors: {
         formErrors: [],
         fieldErrors: {
@@ -386,13 +388,96 @@ const createConcertEvent = async (req: Request, res: Response) => {
       }
     }
 
-    return res.status(201).json({ message: 'Drama event created successfully', event: newEvent });
+    return res.status(201).json({ message: 'Event created successfully', event: newEvent });
   } catch (error) {
-    console.error('Error creating drama event:', error);
-    return res.status(500).json({ message: 'Failed to create drama event' });
+    console.error('Error creating  event:', error);
+    return res.status(500).json({ message: 'Failed to create  event' });
   }
 };
 
+
+const createGamingEvent = async (req: Request, res: Response) => {
+  const schema = z
+    .object({
+      user_id: z.string().min(1, 'User ID is required'),
+      name: z.string().min(1, 'Name is required'),
+      description: z.string().optional(),
+    });
+
+  const result = schema.safeParse(req.body);
+
+  if (!result.success) {
+    return res.status(400).json({
+      message: 'Invalid input for event',
+      errors: result.error.flatten(),
+    });
+  }
+
+  const { user_id, name, description } = result.data;
+
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  const featuredImageFile = files?.featured_image?.[0];
+
+  let featuredImageUrl: string | null = null;
+
+  if (featuredImageFile) {
+    if (!featuredImageFile.mimetype.startsWith('image/')) {
+      return res.status(400).json({
+        message: 'Invalid input for event',
+        errors: {
+          formErrors: [],
+          fieldErrors: {
+            featured_image: ['Featured image must be an image file.'],
+          },
+        },
+      });
+    }
+    try {
+      const { url } = await put(featuredImageFile.originalname, featuredImageFile.buffer, {
+        access: 'public',
+        addRandomSuffix: true,
+      });
+      featuredImageUrl = url;
+    } catch (uploadError) {
+      console.error('Error uploading featured image:', uploadError);
+      return res.status(500).json({ message: 'Failed to upload featured image.' });
+    }
+  } else {
+    return res.status(400).json({
+      message: 'Invalid input for event',
+      errors: {
+        formErrors: [],
+        fieldErrors: {
+          featured_image: ['Featured image is required.'],
+        },
+      },
+    });
+  }
+  let baseSlug = slugify(name, { lower: true, strict: true });
+  let uniqueSlug = baseSlug;
+  let suffix = 1;
+
+  while (await prisma.event.findUnique({ where: { slug: uniqueSlug } })) {
+    uniqueSlug = `${baseSlug}-${suffix++}`;
+  }
+  try {
+    await prisma.event.create({
+      data: {
+        user_id: parseInt(user_id),
+        event_type: 'movie',
+        name,
+        slug: uniqueSlug, 
+        description: description || null, 
+        featured_image: featuredImageUrl, 
+        status: 'active', 
+      },
+    });
+    return res.status(201).json({ message: 'Event created successfully'});
+  } catch (error) {
+    console.error('Error creating  event:', error);
+    return res.status(500).json({ message: 'Failed to create  event' });
+  }
+};
 
 export const getAllEvents = async (req: Request, res: Response) => {
   try {
