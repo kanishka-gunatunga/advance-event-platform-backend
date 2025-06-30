@@ -39,6 +39,7 @@ model User {
   staffDetails StaffDetails?
   ticketTypes TicketType[]
   event Event[]
+  eventArtists       EventArtist[]  
 }
 
 
@@ -156,6 +157,18 @@ model Event {
   createdAt DateTime @default(now())
 
   user      User     @relation(fields: [user_id], references: [id])
+  eventArtists     EventArtist[]
+}
+
+model EventArtist {
+  id                Int       @id @default(autoincrement())
+  event_id          Int
+  artist_id         Int?      
+  artist_name_manual String?  
+  createdAt         DateTime  @default(now())
+
+  event             Event     @relation(fields: [event_id], references: [id])
+  artist            User?     @relation(fields: [artist_id], references: [id])
 }
 
 model Order {
