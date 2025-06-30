@@ -31,8 +31,8 @@ export const createEvent = async (req: Request, res: Response) => {
       return createMovieEvent(req, res);
     case 'drama':
       return createDramaEvent(req, res);
-    case 'sport':
-
+    case 'concert':
+      return createConcertEvent(req, res);
     default:
       return res.status(400).json({ message: 'Invalid event type provided.' });
   }
@@ -217,6 +217,148 @@ const createDramaEvent = async (req: Request, res: Response) => {
         slug: uniqueSlug,
         description: description || null,
         featured_image: featuredImageUrl,
+        status: 'active',
+      },
+    });
+
+    if (artists && artists.length > 0) {
+      const artistConnects = artists.map((artistInput) => {
+        if (typeof artistInput === 'number' || (typeof artistInput === 'string' && !isNaN(parseInt(artistInput)))) {
+          return {
+            event_id: newEvent.id,
+            artist_id: parseInt(artistInput.toString()),
+          };
+        } else if (typeof artistInput === 'string') {
+          return {
+            event_id: newEvent.id,
+            artist_name_manual: artistInput,
+          };
+        }
+        return null;
+      }).filter(Boolean);
+
+      if (artistConnects.length > 0) {
+        await prisma.eventArtist.createMany({
+          data: artistConnects,
+        });
+      }
+    }
+
+    return res.status(201).json({ message: 'Drama event created successfully', event: newEvent });
+  } catch (error) {
+    console.error('Error creating drama event:', error);
+    return res.status(500).json({ message: 'Failed to create drama event' });
+  }
+};
+
+
+const createConcertEvent = async (req: Request, res: Response) => {
+  const schema = z
+    .object({
+      user_id: z.string().min(1, 'User ID is required'),
+      name: z.string().min(1, 'Name is required'),
+      description: z.string().optional(),
+      artists: z.preprocess((val) => {
+        if (typeof val === 'string') {
+          try {
+            return JSON.parse(val);
+          } catch {
+            return [];
+          }
+        }
+        return val;
+      }, z.array(z.union([z.string(), z.number()])).optional()),
+      genres: z.preprocess((val) => {
+        if (typeof val === 'string') {
+          try {
+            return JSON.parse(val); 
+          } catch {
+            return []; 
+          }
+        }
+        return val;
+      }, z.array(z.union([z.number(), z.string()])).optional()),
+      video_embeds: z.preprocess((val) => {
+        if (typeof val === 'string') {
+          try {
+            return JSON.parse(val); 
+          } catch {
+            return []; 
+          }
+        }
+        return val;
+      }, z.array(z.union([z.number(), z.string()])).optional()),
+    });
+
+  const result = schema.safeParse(req.body);
+
+  if (!result.success) {
+    return res.status(400).json({
+      message: 'Invalid input for drama event',
+      errors: result.error.flatten(),
+    });
+  }
+
+  const { user_id, name, description, artists, genres, video_embeds } = result.data;
+
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  const featuredImageFile = files?.featured_image?.[0];
+
+  let featuredImageUrl: string | null = null;
+
+  if (featuredImageFile) {
+    if (!featuredImageFile.mimetype.startsWith('image/')) {
+      return res.status(400).json({
+        message: 'Invalid input for drama event',
+        errors: {
+          formErrors: [],
+          fieldErrors: {
+            featured_image: ['Featured image must be an image file.'],
+          },
+        },
+      });
+    }
+    try {
+      const { url } = await put(featuredImageFile.originalname, featuredImageFile.buffer, {
+        access: 'public',
+        addRandomSuffix: true,
+      });
+      featuredImageUrl = url;
+    } catch (uploadError) {
+      console.error('Error uploading featured image:', uploadError);
+      return res.status(500).json({ message: 'Failed to upload featured image.' });
+    }
+  } else {
+    return res.status(400).json({
+      message: 'Invalid input for drama event',
+      errors: {
+        formErrors: [],
+        fieldErrors: {
+          featured_image: ['Featured image is required.'],
+        },
+      },
+    });
+  }
+
+  let baseSlug = slugify(name, { lower: true, strict: true });
+  let uniqueSlug = baseSlug;
+  let suffix = 1;
+
+  while (await prisma.event.findUnique({ where: { slug: uniqueSlug } })) {
+    uniqueSlug = `${baseSlug}-${suffix++}`;
+  }
+
+  try {
+    const newEvent = await prisma.event.create({
+      data: {
+        user_id: parseInt(user_id),
+        event_type: 'concert', 
+        name,
+        slug: uniqueSlug,
+        description: description || null,
+        featured_image: featuredImageUrl,
+        genres: genres,
+        video_embeds: video_embeds,
         status: 'active',
       },
     });

@@ -153,6 +153,8 @@ model Event {
   description   String?
   featured_image String?
   trailer_links Json?
+  genres Json?
+  video_embeds Json?
   status String
   createdAt DateTime @default(now())
 
