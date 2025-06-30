@@ -38,6 +38,7 @@ model User {
   adminDetails AdminDetails?
   staffDetails StaffDetails?
   ticketTypes TicketType[]
+  instructor Instructor[]
   event Event[]
   eventArtists       EventArtist[]  
 }
@@ -138,6 +139,17 @@ model TicketType {
   user_id   Int     
   name      String?
   color     String?
+  status    String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [user_id], references: [id])
+}
+
+model Instructor {
+  id        Int      @id @default(autoincrement())
+  user_id   Int     
+  name      String?
+  description     String?
   status    String
   createdAt DateTime @default(now())
 

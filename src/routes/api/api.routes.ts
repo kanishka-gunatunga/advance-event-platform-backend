@@ -2,6 +2,7 @@ import express from 'express';
 import { login, customerRegister,organizationRegister, venueRegister,marketingRegister,artistRegister, googleAuth, updateProfileSettings,
 updateSecuritySettings,bookingHistory,paymentHistory,getUserDetails,forgotPassword, validateOtp, resetPassword,resendOtp } from '../../controllers/api/userController';
 import { createTicketType, getTicketTypes, activateTicketType, deactivateTicketType ,editTicketTypeGet, editTicketTypePost} from '../../controllers/api/ticketTypeController';
+import { createInstructor, getInstructors, activateInstructor, deactivateInstructor ,editInstructorGet, editInstructorPost} from '../../controllers/api/instructorController';
 import { createEvent, getAllEvents,getTrendingEvents,getUpcomingEvents,getEventDetails,getEventSeats,getLocations,getArtists } from '../../controllers/api/eventController';
 import { checkout} from '../../controllers/api/checkoutController';
 import { selectSeat,resetSeats,unselectSeat} from '../../controllers/api/seatController';
@@ -55,6 +56,14 @@ router.get('/edit-ticket-type/:id',authenticate, editTicketTypeGet);
 router.post('/edit-ticket-type/:id',authenticate, editTicketTypePost);
 router.get('/activate-ticket-type/:id',authenticate, activateTicketType);
 router.get('/deactivate-ticket-type/:id',authenticate, deactivateTicketType);
+
+//Instructor
+router.post('/create-instructor',authenticate, createInstructor);
+router.get('/get-user-ticket-types/:id',authenticate, getInstructors);
+router.get('/edit-ticket-type/:id',authenticate, editInstructorGet);
+router.post('/edit-ticket-type/:id',authenticate, editInstructorPost);
+router.get('/activate-ticket-type/:id',authenticate, activateInstructor);
+router.get('/deactivate-ticket-type/:id',authenticate, deactivateInstructor);
 
 //Event
 router.post('/create-event',upload.fields([{ name: 'featured_image', maxCount: 1 }]),authenticate, createEvent);

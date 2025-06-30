@@ -246,7 +246,7 @@ const createDramaEvent = async (req: Request, res: Response) => {
       }
     }
 
-    return res.status(201).json({ message: 'Event created successfully', event: newEvent });
+    return res.status(201).json({ message: 'Event created successfully'});
   } catch (error) {
     console.error('Error creating  event:', error);
     return res.status(500).json({ message: 'Failed to create  event' });
@@ -388,7 +388,7 @@ const createConcertEvent = async (req: Request, res: Response) => {
       }
     }
 
-    return res.status(201).json({ message: 'Event created successfully', event: newEvent });
+    return res.status(201).json({ message: 'Event created successfully'});
   } catch (error) {
     console.error('Error creating  event:', error);
     return res.status(500).json({ message: 'Failed to create  event' });
