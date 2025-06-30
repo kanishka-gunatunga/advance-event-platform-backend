@@ -45,17 +45,17 @@ export const createInstructor = async (req: Request, res: Response) => {
 
 export const getInstructors = async (req: Request, res: Response) => {
    const userId = parseInt(req.params.id);
-   const ticketTypes = await prisma.ticketType.findMany({ where: { user_id: userId } });
+   const instructors = await prisma.instructor.findMany({ where: { user_id: userId } });
 
-   return res.status(200).json(ticketTypes);
+   return res.status(200).json(instructors);
 };
 
 
 export const editInstructorGet = async (req: Request, res: Response) => {
   const id = Number(req.params.id);
-  const ticketType = await prisma.ticketType.findFirst({ where: { id: id } });
+  const instructor = await prisma.instructor.findFirst({ where: { id: id } });
 
-   return res.status(200).json(ticketType);
+   return res.status(200).json(instructor);
 };
 
 export const editInstructorPost = async (req: Request, res: Response) => {
@@ -63,7 +63,7 @@ export const editInstructorPost = async (req: Request, res: Response) => {
   const schema = z
     .object({
       name: z.string().min(1, 'Name is required'),
-      color: z.string().min(1, 'Color is required'),
+      description: z.string().optional(),
     });
 
   const result = schema.safeParse(req.body);
@@ -76,28 +76,28 @@ export const editInstructorPost = async (req: Request, res: Response) => {
   }
 
 
-  const {name,color} = result.data;
+  const {name,description} = result.data;
 
    const id = Number(req.params.id);
 
   try {
-    const ticketType = await prisma.ticketType.findUnique({
+    const instructor = await prisma.instructor.findUnique({
       where: { id: id }
     });
 
-    if (!ticketType) {
-       return res.status(400).json({ message: 'Ticket type not found.' });
+    if (!instructor) {
+       return res.status(400).json({ message: 'Instructor not found.' });
     }
 
-    await prisma.ticketType.update({
+    await prisma.instructor.update({
       where: { id: id },
       data: {
         name,
-        color
+        description
       },
     });
 
-     return res.status(200).json({ message: 'Ticket type updated  successfully.' });
+     return res.status(200).json({ message: 'Instructor updated  successfully.' });
   } catch (err) {
     console.error('Error :', err);
     return res.status(500).json({ message: 'An unexpected error occurred.' });
@@ -107,11 +107,11 @@ export const editInstructorPost = async (req: Request, res: Response) => {
 export const activateInstructor = async (req: Request, res: Response) => {
   const id = Number(req.params.id);
   try {
-    await prisma.ticketType.update({
+    await prisma.instructor.update({
       where: { id },
       data: { status: 'active' },
     });
-   return res.status(200).json({ message: 'Ticket type activated successfully.' });
+   return res.status(200).json({ message: 'Instructor activated successfully.' });
   } catch (err) {
     console.error('Error :', err);
     return res.status(500).json({ message: 'An unexpected error occurred.' });
@@ -121,11 +121,11 @@ export const activateInstructor = async (req: Request, res: Response) => {
 export const deactivateInstructor = async (req: Request, res: Response) => {
   const id = Number(req.params.id);
   try {
-    await prisma.ticketType.update({
+    await prisma.instructor.update({
       where: { id },
       data: { status: 'inactive' },
     });
-   return res.status(200).json({ message: 'Ticket type deactivated successfully.' });
+   return res.status(200).json({ message: 'Instructor deactivated successfully.' });
   } catch (err) {
     console.error('Error :', err);
     return res.status(500).json({ message: 'An unexpected error occurred.' });
