@@ -3,6 +3,7 @@ import { login, customerRegister,organizationRegister, venueRegister,marketingRe
 updateSecuritySettings,bookingHistory,paymentHistory,getUserDetails,forgotPassword, validateOtp, resetPassword,resendOtp } from '../../controllers/api/userController';
 import { createTicketType, getTicketTypes, activateTicketType, deactivateTicketType ,editTicketTypeGet, editTicketTypePost} from '../../controllers/api/ticketTypeController';
 import { createInstructor, getInstructors, activateInstructor, deactivateInstructor ,editInstructorGet, editInstructorPost} from '../../controllers/api/instructorController';
+import { createSpeaker, getSpeakers, activateSpeaker, deactivateSpeaker ,editSpeakerGet, editSpeakerPost} from '../../controllers/api/speakerController';
 import { createEvent, getAllEvents,getTrendingEvents,getUpcomingEvents,getEventDetails,getEventSeats,getLocations,getArtists } from '../../controllers/api/eventController';
 import { checkout} from '../../controllers/api/checkoutController';
 import { selectSeat,resetSeats,unselectSeat} from '../../controllers/api/seatController';
@@ -59,11 +60,19 @@ router.get('/deactivate-ticket-type/:id',authenticate, deactivateTicketType);
 
 //Instructor
 router.post('/create-instructor',authenticate, createInstructor);
-router.get('/get-user-ticket-types/:id',authenticate, getInstructors);
-router.get('/edit-ticket-type/:id',authenticate, editInstructorGet);
-router.post('/edit-ticket-type/:id',authenticate, editInstructorPost);
-router.get('/activate-ticket-type/:id',authenticate, activateInstructor);
-router.get('/deactivate-ticket-type/:id',authenticate, deactivateInstructor);
+router.get('/get-user-instructors/:id',authenticate, getInstructors);
+router.get('/edit-instructor/:id',authenticate, editInstructorGet);
+router.post('/edit-instructor/:id',authenticate, editInstructorPost);
+router.get('/activate-instructor/:id',authenticate, activateInstructor);
+router.get('/deactivate-instructor/:id',authenticate, deactivateInstructor);
+
+//Speaker
+router.post('/create-speaker',authenticate, createSpeaker);
+router.get('/get-user-speakers/:id',authenticate, getSpeaker);
+router.get('/edit-speaker/:id',authenticate, editSpeakerGet);
+router.post('/edit-speaker/:id',authenticate, editSpeakerPost);
+router.get('/activate-speaker/:id',authenticate, activateSpeaker);
+router.get('/deactivate-speaker/:id',authenticate, deactivateSpeaker);
 
 //Event
 router.post('/create-event',upload.fields([{ name: 'featured_image', maxCount: 1 }]),authenticate, createEvent);

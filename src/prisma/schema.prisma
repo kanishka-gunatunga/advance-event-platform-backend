@@ -39,6 +39,7 @@ model User {
   staffDetails StaffDetails?
   ticketTypes TicketType[]
   instructor Instructor[]
+  speaker Speaker[]
   event Event[]
   eventArtists       EventArtist[]  
 }
@@ -154,6 +155,19 @@ model Instructor {
   createdAt DateTime @default(now())
 
   user      User     @relation(fields: [user_id], references: [id])
+  eventInstructors EventInstructor[]
+}
+
+model Speaker {
+  id        Int      @id @default(autoincrement())
+  user_id   Int     
+  name      String?
+  description     String?
+  status    String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [user_id], references: [id])
+  eventSpeakers EventSpeaker[]
 }
 
 model Event {
@@ -172,6 +186,8 @@ model Event {
 
   user      User     @relation(fields: [user_id], references: [id])
   eventArtists     EventArtist[]
+  eventInstructors     EventInstructor[]
+  eventSpeakers     EventSpeaker[]
 }
 
 model EventArtist {
@@ -185,6 +201,25 @@ model EventArtist {
   artist            User?     @relation(fields: [artist_id], references: [id])
 }
 
+model EventInstructor {
+  id                Int       @id @default(autoincrement())
+  event_id          Int
+  instructor_id         Int?       
+  createdAt         DateTime  @default(now())
+
+  event             Event     @relation(fields: [event_id], references: [id])
+  instructor    Instructor? @relation(fields: [instructor_id], references: [id])
+}
+
+model EventSpeaker {
+  id                Int       @id @default(autoincrement())
+  event_id          Int
+  speaker_id         Int?       
+  createdAt         DateTime  @default(now())
+
+  event             Event     @relation(fields: [event_id], references: [id])
+  speaker    Speaker? @relation(fields: [speaker_id], references: [id])
+}
 model Order {
   id             Int      @id @default(autoincrement())
   email          String
