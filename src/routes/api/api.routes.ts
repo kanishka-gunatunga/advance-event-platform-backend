@@ -3,8 +3,11 @@ import { login, customerRegister,organizationRegister, venueRegister,marketingRe
 updateSecuritySettings,bookingHistory,paymentHistory,getUserDetails,forgotPassword, validateOtp, resetPassword,resendOtp } from '../../controllers/api/userController';
 import { createTicketType, getTicketTypes, activateTicketType, deactivateTicketType ,editTicketTypeGet, editTicketTypePost} from '../../controllers/api/ticketTypeController';
 import { createInstructor, getInstructors, activateInstructor, deactivateInstructor ,editInstructorGet, editInstructorPost} from '../../controllers/api/instructorController';
+import { createPerformer, getPerformers, activatePerformer, deactivatePerformer ,editPerformerGet, editPerformerPost} from '../../controllers/api/performerController';
+
 import { createSpeaker, getSpeakers, activateSpeaker, deactivateSpeaker ,editSpeakerGet, editSpeakerPost} from '../../controllers/api/speakerController';
 import { createEvent, getAllEvents,getTrendingEvents,getUpcomingEvents,getEventDetails,getEventSeats,getLocations,getArtists } from '../../controllers/api/eventController';
+
 import { checkout} from '../../controllers/api/checkoutController';
 import { selectSeat,resetSeats,unselectSeat} from '../../controllers/api/seatController';
 import { authenticate } from '../../middlewares/authMiddleware';
@@ -68,11 +71,19 @@ router.get('/deactivate-instructor/:id',authenticate, deactivateInstructor);
 
 //Speaker
 router.post('/create-speaker',authenticate, createSpeaker);
-router.get('/get-user-speakers/:id',authenticate, getSpeaker);
+router.get('/get-user-speakers/:id',authenticate, getSpeakers);
 router.get('/edit-speaker/:id',authenticate, editSpeakerGet);
 router.post('/edit-speaker/:id',authenticate, editSpeakerPost);
 router.get('/activate-speaker/:id',authenticate, activateSpeaker);
 router.get('/deactivate-speaker/:id',authenticate, deactivateSpeaker);
+
+//Performer
+router.post('/create-performer',authenticate, createPerformer);
+router.get('/get-user-performers/:id',authenticate, getPerformer);
+router.get('/edit-performer/:id',authenticate, editPerformerGet);
+router.post('/edit-performer/:id',authenticate, editPerformerPost);
+router.get('/activate-performer/:id',authenticate, activatePerformer);
+router.get('/deactivate-performer/:id',authenticate, deactivatePerformer);
 
 //Event
 router.post('/create-event',upload.fields([{ name: 'featured_image', maxCount: 1 }]),authenticate, createEvent);

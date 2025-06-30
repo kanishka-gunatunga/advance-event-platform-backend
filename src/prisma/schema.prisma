@@ -40,6 +40,7 @@ model User {
   ticketTypes TicketType[]
   instructor Instructor[]
   speaker Speaker[]
+  performer Performer[]
   event Event[]
   eventArtists       EventArtist[]  
 }
@@ -170,6 +171,17 @@ model Speaker {
   eventSpeakers EventSpeaker[]
 }
 
+model Performer {
+  id        Int      @id @default(autoincrement())
+  user_id   Int     
+  name      String?
+  description     String?
+  status    String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [user_id], references: [id])
+  eventPerformers EventPerformer[]
+}
 model Event {
   id            Int       @id @default(autoincrement())
   user_id       Int  
@@ -188,6 +200,7 @@ model Event {
   eventArtists     EventArtist[]
   eventInstructors     EventInstructor[]
   eventSpeakers     EventSpeaker[]
+  eventPerformers     EventPerformer[]
 }
 
 model EventArtist {
@@ -209,6 +222,16 @@ model EventInstructor {
 
   event             Event     @relation(fields: [event_id], references: [id])
   instructor    Instructor? @relation(fields: [instructor_id], references: [id])
+}
+
+model EventPerformer {
+  id                Int       @id @default(autoincrement())
+  event_id          Int
+  performer_id         Int?       
+  createdAt         DateTime  @default(now())
+
+  event             Event     @relation(fields: [event_id], references: [id])
+  performer    Performer? @relation(fields: [performer_id], references: [id])
 }
 
 model EventSpeaker {

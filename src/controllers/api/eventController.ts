@@ -41,6 +41,12 @@ export const createEvent = async (req: Request, res: Response) => {
       return createWorkshopEvent(req, res);
     case 'seminar':
       return createSeminarsEvent(req, res);
+    case 'yacht':
+      return createYachtEvent(req, res);
+    case 'sport':
+      return createSportEvent(req, res);
+    case 'comedy':
+      return createComedyEvent(req, res);
     default:
       return res.status(400).json({ message: 'Invalid event type provided.' });
   }
@@ -798,6 +804,287 @@ const createSeminarsEvent = async (req: Request, res: Response) => {
   }
 };
 
+const createYachtEvent = async (req: Request, res: Response) => {
+  const schema = z
+    .object({
+      user_id: z.string().min(1, 'User ID is required'),
+      name: z.string().min(1, 'Name is required'),
+      description: z.string().optional(),
+    });
+
+  const result = schema.safeParse(req.body);
+
+  if (!result.success) {
+    return res.status(400).json({
+      message: 'Invalid input for event',
+      errors: result.error.flatten(),
+    });
+  }
+
+  const { user_id, name, description } = result.data;
+
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  const featuredImageFile = files?.featured_image?.[0];
+
+  let featuredImageUrl: string | null = null;
+
+  if (featuredImageFile) {
+    if (!featuredImageFile.mimetype.startsWith('image/')) {
+      return res.status(400).json({
+        message: 'Invalid input for event',
+        errors: {
+          formErrors: [],
+          fieldErrors: {
+            featured_image: ['Featured image must be an image file.'],
+          },
+        },
+      });
+    }
+    try {
+      const { url } = await put(featuredImageFile.originalname, featuredImageFile.buffer, {
+        access: 'public',
+        addRandomSuffix: true,
+      });
+      featuredImageUrl = url;
+    } catch (uploadError) {
+      console.error('Error uploading featured image:', uploadError);
+      return res.status(500).json({ message: 'Failed to upload featured image.' });
+    }
+  } else {
+    return res.status(400).json({
+      message: 'Invalid input for event',
+      errors: {
+        formErrors: [],
+        fieldErrors: {
+          featured_image: ['Featured image is required.'],
+        },
+      },
+    });
+  }
+  let baseSlug = slugify(name, { lower: true, strict: true });
+  let uniqueSlug = baseSlug;
+  let suffix = 1;
+
+  while (await prisma.event.findUnique({ where: { slug: uniqueSlug } })) {
+    uniqueSlug = `${baseSlug}-${suffix++}`;
+  }
+  try {
+    await prisma.event.create({
+      data: {
+        user_id: parseInt(user_id),
+        event_type: 'yacht',
+        name,
+        slug: uniqueSlug, 
+        description: description || null, 
+        featured_image: featuredImageUrl, 
+        status: 'active', 
+      },
+    });
+    return res.status(201).json({ message: 'Event created successfully'});
+  } catch (error) {
+    console.error('Error creating  event:', error);
+    return res.status(500).json({ message: 'Failed to create  event' });
+  }
+};
+
+
+const createSportEvent = async (req: Request, res: Response) => {
+  const schema = z
+    .object({
+      user_id: z.string().min(1, 'User ID is required'),
+      name: z.string().min(1, 'Name is required'),
+      description: z.string().optional(),
+    });
+
+  const result = schema.safeParse(req.body);
+
+  if (!result.success) {
+    return res.status(400).json({
+      message: 'Invalid input for event',
+      errors: result.error.flatten(),
+    });
+  }
+
+  const { user_id, name, description } = result.data;
+
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  const featuredImageFile = files?.featured_image?.[0];
+
+  let featuredImageUrl: string | null = null;
+
+  if (featuredImageFile) {
+    if (!featuredImageFile.mimetype.startsWith('image/')) {
+      return res.status(400).json({
+        message: 'Invalid input for event',
+        errors: {
+          formErrors: [],
+          fieldErrors: {
+            featured_image: ['Featured image must be an image file.'],
+          },
+        },
+      });
+    }
+    try {
+      const { url } = await put(featuredImageFile.originalname, featuredImageFile.buffer, {
+        access: 'public',
+        addRandomSuffix: true,
+      });
+      featuredImageUrl = url;
+    } catch (uploadError) {
+      console.error('Error uploading featured image:', uploadError);
+      return res.status(500).json({ message: 'Failed to upload featured image.' });
+    }
+  } else {
+    return res.status(400).json({
+      message: 'Invalid input for event',
+      errors: {
+        formErrors: [],
+        fieldErrors: {
+          featured_image: ['Featured image is required.'],
+        },
+      },
+    });
+  }
+  let baseSlug = slugify(name, { lower: true, strict: true });
+  let uniqueSlug = baseSlug;
+  let suffix = 1;
+
+  while (await prisma.event.findUnique({ where: { slug: uniqueSlug } })) {
+    uniqueSlug = `${baseSlug}-${suffix++}`;
+  }
+  try {
+    await prisma.event.create({
+      data: {
+        user_id: parseInt(user_id),
+        event_type: 'sport',
+        name,
+        slug: uniqueSlug, 
+        description: description || null, 
+        featured_image: featuredImageUrl, 
+        status: 'active', 
+      },
+    });
+    return res.status(201).json({ message: 'Event created successfully'});
+  } catch (error) {
+    console.error('Error creating  event:', error);
+    return res.status(500).json({ message: 'Failed to create  event' });
+  }
+};
+
+
+const createComedyEvent = async (req: Request, res: Response) => {
+  const schema = z
+    .object({
+      user_id: z.string().min(1, 'User ID is required'),
+      name: z.string().min(1, 'Name is required'),
+      description: z.string().optional(),
+      performers: z.preprocess((val) => {
+        if (typeof val === 'string') {
+          try {
+            return JSON.parse(val);
+          } catch {
+            return [];
+          }
+        }
+        return val;
+      }, z.array(z.union([z.string(), z.number()])).optional()),
+    });
+
+  const result = schema.safeParse(req.body);
+
+  if (!result.success) {
+    return res.status(400).json({
+      message: 'Invalid input for  event',
+      errors: result.error.flatten(),
+    });
+  }
+
+  const { user_id, name, description, performers } = result.data;
+
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  const featuredImageFile = files?.featured_image?.[0];
+
+  let featuredImageUrl: string | null = null;
+
+  if (featuredImageFile) {
+    if (!featuredImageFile.mimetype.startsWith('image/')) {
+      return res.status(400).json({
+        message: 'Invalid input for  event',
+        errors: {
+          formErrors: [],
+          fieldErrors: {
+            featured_image: ['Featured image must be an image file.'],
+          },
+        },
+      });
+    }
+    try {
+      const { url } = await put(featuredImageFile.originalname, featuredImageFile.buffer, {
+        access: 'public',
+        addRandomSuffix: true,
+      });
+      featuredImageUrl = url;
+    } catch (uploadError) {
+      console.error('Error uploading featured image:', uploadError);
+      return res.status(500).json({ message: 'Failed to upload featured image.' });
+    }
+  } else {
+    return res.status(400).json({
+      message: 'Invalid input for  event',
+      errors: {
+        formErrors: [],
+        fieldErrors: {
+          featured_image: ['Featured image is required.'],
+        },
+      },
+    });
+  }
+
+  let baseSlug = slugify(name, { lower: true, strict: true });
+  let uniqueSlug = baseSlug;
+  let suffix = 1;
+
+  while (await prisma.event.findUnique({ where: { slug: uniqueSlug } })) {
+    uniqueSlug = `${baseSlug}-${suffix++}`;
+  }
+
+  try {
+    const newEvent = await prisma.event.create({
+      data: {
+        user_id: parseInt(user_id),
+        event_type: 'comedy', 
+        name,
+        slug: uniqueSlug,
+        description: description || null,
+        featured_image: featuredImageUrl,
+        status: 'active',
+      },
+    });
+
+    if (performers && performers.length > 0) {
+      const performerConnects = performers.map((performerInput) => {
+        if (typeof performerInput === 'number' || (typeof performerInput === 'string' && !isNaN(parseInt(performerInput)))) {
+          return {
+            event_id: newEvent.id,
+            performer_id: parseInt(performerInput.toString()),
+          };
+        } 
+        return null;
+      }).filter(Boolean);
+
+      if (performerConnects.length > 0) {
+        await prisma.eventPerformer.createMany({
+          data: performerConnects,
+        });
+      }
+    }
+
+    return res.status(201).json({ message: 'Event created successfully'});
+  } catch (error) {
+    console.error('Error creating  event:', error);
+    return res.status(500).json({ message: 'Failed to create  event' });
+  }
+};
 export const getAllEvents = async (req: Request, res: Response) => {
   try {
     const {
