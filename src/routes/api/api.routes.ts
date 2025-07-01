@@ -7,6 +7,7 @@ import { createPerformer, getPerformers, activatePerformer, deactivatePerformer 
 
 import { createSpeaker, getSpeakers, activateSpeaker, deactivateSpeaker ,editSpeakerGet, editSpeakerPost} from '../../controllers/api/speakerController';
 import { createEvent, getAllEvents,getTrendingEvents,getUpcomingEvents,getEventDetails,getEventSeats,getLocations,getArtists } from '../../controllers/api/eventController';
+import { organizationProfilePost} from '../../controllers/api/organizationAccountController';
 
 import { checkout} from '../../controllers/api/checkoutController';
 import { selectSeat,resetSeats,unselectSeat} from '../../controllers/api/seatController';
@@ -30,6 +31,9 @@ router.post('/update-security-settings/:id',authenticate, updateSecuritySettings
 router.get('/booking-history/:id',authenticate, bookingHistory);
 router.get('/payment-history/:id',authenticate, paymentHistory);
 router.post('/resend-otp', resendOtp);
+
+//Organization
+router.post('/organization-profile/:id',upload.fields([{ name: 'banner', maxCount: 1 },{ name: 'logo', maxCount: 1 }]),authenticate, organizationProfilePost);
 
 //Events
 router.get('/get-all-events', getAllEvents);

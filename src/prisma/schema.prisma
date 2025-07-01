@@ -70,6 +70,10 @@ model OrganizationDetails {
   country String?
   address  String?
   city  String?
+  description String?
+  social_links Json?
+  banner String?
+  logo String?
   createdAt DateTime @default(now())
 
   user  User  @relation(fields: [user_id], references: [id])
