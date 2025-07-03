@@ -3,7 +3,7 @@ import { login, customerRegister,organizationRegister, venueRegister,marketingRe
 updateSecuritySettings,bookingHistory,paymentHistory,getUserDetails,forgotPassword, validateOtp, resetPassword,resendOtp } from '../../controllers/api/userController';
 import { createTicketType, getTicketTypes, activateTicketType, deactivateTicketType ,editTicketTypeGet, editTicketTypePost} from '../../controllers/api/ticketTypeController';
 import { createInstructor, getInstructors, activateInstructor, deactivateInstructor ,editInstructorGet, editInstructorPost} from '../../controllers/api/instructorController';
-import { createPerformer, getPerformers, activatePerformer, deactivatePerformer ,editPerformerGet, editPerformerPost} from '../../controllers/api/performerController';
+import { createPerformer, getPerformer, activatePerformer, deactivatePerformer ,editPerformerGet, editPerformerPost} from '../../controllers/api/performerController';
 
 import { createSpeaker, getSpeakers, activateSpeaker, deactivateSpeaker ,editSpeakerGet, editSpeakerPost} from '../../controllers/api/speakerController';
 import { createEvent, getAllEvents,getTrendingEvents,getUpcomingEvents,getEventDetails,getEventSeats,getLocations,getArtists } from '../../controllers/api/eventController';
