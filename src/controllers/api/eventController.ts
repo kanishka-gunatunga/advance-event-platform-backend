@@ -162,8 +162,8 @@ const createMovieEvent = async (req: Request, res: Response) => {
   while (await prisma.event.findUnique({ where: { slug: uniqueSlug } })) {
     uniqueSlug = `${baseSlug}-${suffix++}`;
   }
-  const parsedStartDate = convertToUTCFromColombo(start_date);
-  const parsedEndDate = convertToUTCFromColombo(end_date);
+  const parsedStartDate = new Date(start_date);
+  const parsedEndDate = new Date(end_date);
   try {
     const newEvent = await prisma.event.create({
       data: {
@@ -196,30 +196,30 @@ const createMovieEvent = async (req: Request, res: Response) => {
       }
     }
     if (showtimes && showtimes.length > 0) {
-    const showtimesData = showtimes.map((showtimeInput) => {
-      // Convert date part to UTC midnight for Colombo time
-      const localDateString = showtimeInput.showtime_date; // e.g. "2025-07-03"
-      const localMidnightDate = convertToUTCFromColombo(`${localDateString}T00:00:00`);
+      const showtimesData = showtimes.map((showtimeInput) => {
 
-      // Convert time part to a Date with fixed date (e.g., 2000-01-01) in Colombo timezone
-      const timeParts = showtimeInput.showtime_time.split(':'); // ["14", "30"]
-      const localDateTimeString = `2000-01-01T${showtimeInput.showtime_time}:00`; // e.g. "2000-01-01T14:30:00"
-      const localTimeDate = convertToUTCFromColombo(localDateTimeString);
+        const combinedDateTimeString = `${showtimeInput.showtime_date}T${showtimeInput.showtime_time}:00`; 
+        const showtimeDateTime = new Date(combinedDateTimeString);
 
-      return {
-        event_id: newEvent.id,
-        venue_id: parseInt(showtimeInput.venue_id),
-        showtime_date: localMidnightDate,
-        showtime_time: localTimeDate,
-      };
-    }).filter(Boolean);
+        const parsedShowtimeDate = new Date(showtimeInput.showtime_date + 'T00:00:00Z');
+        const [hours, minutes, seconds] = showtimeInput.showtime_time.split(':').map(Number);
+        const parsedShowtimeTime = new Date('2000-01-01T00:00:00Z'); 
+        parsedShowtimeTime.setUTCHours(hours, minutes, seconds || 0, 0);
 
-    if (showtimesData.length > 0) {
-      await prisma.eventShowtime.createMany({
-        data: showtimesData,
-      });
+        return {
+          event_id: newEvent.id,
+          venue_id: parseInt(showtimeInput.venue_id),
+          showtime_date: parsedShowtimeDate,
+          showtime_time: parsedShowtimeTime,
+        };
+      }).filter(Boolean);
+
+      if (showtimesData.length > 0) {
+        await prisma.eventShowtime.createMany({
+          data: showtimesData,
+        });
+      }
     }
-  }
     return res.status(201).json({ message: 'Event created successfully'});
   } catch (error) {
     console.error('Error creating  event:', error);
