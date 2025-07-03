@@ -48,6 +48,7 @@ model User {
   followers            Follower[] @relation(name: "FollowedBy")
   eventVenues       EventVenue[]  
   eventShowtimes    EventShowtime[]
+  seats Seats[]
 }
 
 
@@ -273,6 +274,7 @@ model EventShowtime {
 
   event             Event     @relation(fields: [event_id], references: [id])
   venue             User     @relation(fields: [venue_id], references: [id])
+  seatAllocations     SeatAllocations[]
 }
 
 model EventInstructor {
@@ -305,6 +307,30 @@ model EventSpeaker {
   event             Event     @relation(fields: [event_id], references: [id])
   speaker    Speaker? @relation(fields: [speaker_id], references: [id])
 }
+
+model Seats {
+  id                Int       @id @default(autoincrement())
+  venue_id         Int  
+  seat_svg_id     String
+  seat_no_to_display String
+  createdAt         DateTime  @default(now())
+
+  venue             User     @relation(fields: [venue_id], references: [id])
+  seatAllocations     SeatAllocations[]
+}
+
+model SeatAllocations  {
+  id                Int       @id @default(autoincrement())
+  seat_id         Int
+  showtime_id         Int  
+  ticket_type_id     String
+  status            String
+  createdAt         DateTime  @default(now())
+
+  seat             Seats     @relation(fields: [seat_id], references: [id])
+  showtime             EventShowtime     @relation(fields: [showtime_id], references: [id])
+}
+
 model Order {
   id             Int      @id @default(autoincrement())
   email          String
