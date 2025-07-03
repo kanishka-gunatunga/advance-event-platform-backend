@@ -256,13 +256,20 @@ const createDramaEvent = async (req: Request, res: Response) => {
       showtimes: z.preprocess((val) => {
         if (typeof val === 'string') {
           try {
-            return JSON.parse(val); 
+            return JSON.parse(val);
           } catch {
-            return []; 
+            return [];
           }
         }
-        return val;
-      }, z.array(z.union([z.number(), z.string()])).optional()),
+          return val;
+      },
+        // Define the expected structure for each showtime object
+        z.array(z.object({
+            venue_id: z.string().min(1, 'Venue ID for showtime is required'),
+            showtime_date: z.string().min(1, 'Showtime date is required'),
+            showtime_time: z.string().min(1, 'Showtime time is required'),
+        })).optional()
+    ),
       start_date: z.string().min(1, 'Start date is required'),
       end_date: z.string().min(1, 'End date is required'),
     });
@@ -382,17 +389,27 @@ const createDramaEvent = async (req: Request, res: Response) => {
       }
     }
     if (showtimes && showtimes.length > 0) {
-      const showtimesConnects = showtimes.map((showtimesInput) => {
-        return {
-            event_id: newEvent.id,
-            showtime: showtimesInput,
-        };
+      const showtimesData = showtimes.map((showtimeInput) => {
 
+        const combinedDateTimeString = `${showtimeInput.showtime_date}T${showtimeInput.showtime_time}:00`; 
+        const showtimeDateTime = new Date(combinedDateTimeString);
+
+        const parsedShowtimeDate = new Date(showtimeInput.showtime_date + 'T00:00:00Z');
+        const [hours, minutes, seconds] = showtimeInput.showtime_time.split(':').map(Number);
+        const parsedShowtimeTime = new Date('2000-01-01T00:00:00Z'); 
+        parsedShowtimeTime.setUTCHours(hours, minutes, seconds || 0, 0);
+
+        return {
+          event_id: newEvent.id,
+          venue_id: parseInt(showtimeInput.venue_id),
+          showtime_date: parsedShowtimeDate,
+          showtime_time: parsedShowtimeTime,
+        };
       }).filter(Boolean);
 
-      if (showtimesConnects.length > 0) {
+      if (showtimesData.length > 0) {
         await prisma.eventShowtime.createMany({
-          data: showtimesConnects,
+          data: showtimesData,
         });
       }
     }
@@ -1140,13 +1157,20 @@ const createComedyEvent = async (req: Request, res: Response) => {
       showtimes: z.preprocess((val) => {
         if (typeof val === 'string') {
           try {
-            return JSON.parse(val); 
+            return JSON.parse(val);
           } catch {
-            return []; 
+            return [];
           }
         }
-        return val;
-      }, z.array(z.union([z.number(), z.string()])).optional()),
+          return val;
+      },
+        // Define the expected structure for each showtime object
+        z.array(z.object({
+            venue_id: z.string().min(1, 'Venue ID for showtime is required'),
+            showtime_date: z.string().min(1, 'Showtime date is required'),
+            showtime_time: z.string().min(1, 'Showtime time is required'),
+        })).optional()
+    ),
       start_date: z.string().min(1, 'Start date is required'),
       end_date: z.string().min(1, 'End date is required'),
     });
@@ -1259,17 +1283,27 @@ const createComedyEvent = async (req: Request, res: Response) => {
       }
     }
     if (showtimes && showtimes.length > 0) {
-      const showtimesConnects = showtimes.map((showtimesInput) => {
-        return {
-            event_id: newEvent.id,
-            showtime: showtimesInput,
-        };
+      const showtimesData = showtimes.map((showtimeInput) => {
 
+        const combinedDateTimeString = `${showtimeInput.showtime_date}T${showtimeInput.showtime_time}:00`; 
+        const showtimeDateTime = new Date(combinedDateTimeString);
+
+        const parsedShowtimeDate = new Date(showtimeInput.showtime_date + 'T00:00:00Z');
+        const [hours, minutes, seconds] = showtimeInput.showtime_time.split(':').map(Number);
+        const parsedShowtimeTime = new Date('2000-01-01T00:00:00Z'); 
+        parsedShowtimeTime.setUTCHours(hours, minutes, seconds || 0, 0);
+
+        return {
+          event_id: newEvent.id,
+          venue_id: parseInt(showtimeInput.venue_id),
+          showtime_date: parsedShowtimeDate,
+          showtime_time: parsedShowtimeTime,
+        };
       }).filter(Boolean);
 
-      if (showtimesConnects.length > 0) {
+      if (showtimesData.length > 0) {
         await prisma.eventShowtime.createMany({
-          data: showtimesConnects,
+          data: showtimesData,
         });
       }
     }
