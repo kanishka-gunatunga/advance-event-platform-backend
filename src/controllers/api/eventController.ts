@@ -184,7 +184,7 @@ const createMovieEvent = async (req: Request, res: Response) => {
       const vennuesConnects = venues.map((venuesInput) => {
         return {
             event_id: newEvent.id,
-            venue_id: venuesInput,
+            venue_id: Number(venuesInput),
         };
 
       }).filter(Boolean);
@@ -347,12 +347,12 @@ const createDramaEvent = async (req: Request, res: Response) => {
       const artistConnects = artists.map((artistInput) => {
         if (typeof artistInput === 'number' || (typeof artistInput === 'string' && !isNaN(parseInt(artistInput)))) {
           return {
-            event_id: newEvent.id,
+            event_id: Number(newEvent.id),
             artist_id: parseInt(artistInput.toString()),
           };
         } else if (typeof artistInput === 'string') {
           return {
-            event_id: newEvent.id,
+            event_id: Number(newEvent.id),
             artist_name_manual: artistInput,
           };
         }
