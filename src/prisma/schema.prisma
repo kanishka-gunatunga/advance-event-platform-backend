@@ -47,6 +47,7 @@ model User {
   following            Follower[] @relation(name: "UserFollows")
   followers            Follower[] @relation(name: "FollowedBy")
   eventVenues       EventVenue[]  
+  eventShowtimes    EventShowtime[]
 }
 
 
@@ -216,6 +217,7 @@ model Follower {
   follower    User      @relation(name: "FollowedBy", fields: [followed_by], references: [id])
   @@unique([user_id, followed_by])
 }
+
 model Event {
   id            Int       @id @default(autoincrement())
   user_id       Int  
