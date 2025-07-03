@@ -270,6 +270,7 @@ model EventShowtime {
   createdAt         DateTime  @default(now())
 
   event             Event     @relation(fields: [event_id], references: [id])
+  venue             User     @relation(fields: [venue_id], references: [id])
 }
 
 model EventInstructor {
