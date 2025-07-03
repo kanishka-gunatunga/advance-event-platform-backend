@@ -43,6 +43,10 @@ model User {
   performer Performer[]
   event Event[]
   eventArtists       EventArtist[]  
+  inquiry Inquiry[]
+  following            Follower[] @relation(name: "UserFollows")
+  followers            Follower[] @relation(name: "FollowedBy")
+  eventVenues       EventVenue[]  
 }
 
 
@@ -87,6 +91,7 @@ model VenueDetails {
   country String?
   address  String?
   city  String?
+  seat_map  String?
   createdAt DateTime @default(now())
 
   user  User  @relation(fields: [user_id], references: [id])
@@ -186,6 +191,31 @@ model Performer {
   user      User     @relation(fields: [user_id], references: [id])
   eventPerformers EventPerformer[]
 }
+
+model Inquiry {
+  id        Int      @id @default(autoincrement())
+  user_id   Int     
+  name      String
+  email     String
+  contact_no    String
+  subject    String
+  message    String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [user_id], references: [id])
+
+}
+
+model Follower {
+  id          Int      @id @default(autoincrement())
+  user_id     Int      
+  followed_by Int      
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(name: "UserFollows", fields: [user_id], references: [id])
+  follower    User      @relation(name: "FollowedBy", fields: [followed_by], references: [id])
+  @@unique([user_id, followed_by])
+}
 model Event {
   id            Int       @id @default(autoincrement())
   user_id       Int  
@@ -197,6 +227,8 @@ model Event {
   trailer_links Json?
   genres Json?
   video_embeds Json?
+  start_date      DateTime?  
+  end_date        DateTime?  
   status String
   createdAt DateTime @default(now())
 
@@ -205,6 +237,8 @@ model Event {
   eventInstructors     EventInstructor[]
   eventSpeakers     EventSpeaker[]
   eventPerformers     EventPerformer[]
+  eventVenues     EventVenue[]
+  eventShowtime     EventShowtime[]
 }
 
 model EventArtist {
@@ -216,6 +250,26 @@ model EventArtist {
 
   event             Event     @relation(fields: [event_id], references: [id])
   artist            User?     @relation(fields: [artist_id], references: [id])
+}
+
+model EventVenue {
+  id                Int       @id @default(autoincrement())
+  event_id          Int
+  venue_id         Int       
+  createdAt         DateTime  @default(now())
+
+  event             Event     @relation(fields: [event_id], references: [id])
+  venue             User     @relation(fields: [venue_id], references: [id])
+}
+model EventShowtime {
+  id                Int       @id @default(autoincrement())
+  event_id          Int
+  venue_id         Int  
+  showtime_date     DateTime
+  showtime_time     DateTime       
+  createdAt         DateTime  @default(now())
+
+  event             Event     @relation(fields: [event_id], references: [id])
 }
 
 model EventInstructor {
@@ -237,6 +291,7 @@ model EventPerformer {
   event             Event     @relation(fields: [event_id], references: [id])
   performer    Performer? @relation(fields: [performer_id], references: [id])
 }
+
 
 model EventSpeaker {
   id                Int       @id @default(autoincrement())

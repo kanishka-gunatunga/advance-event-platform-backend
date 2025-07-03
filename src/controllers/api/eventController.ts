@@ -74,6 +74,35 @@ const createMovieEvent = async (req: Request, res: Response) => {
         }
         return val;
       }, z.array(z.union([z.number(), z.string()])).optional()),
+      venues: z.preprocess((val) => {
+        if (typeof val === 'string') {
+          try {
+            return JSON.parse(val); 
+          } catch {
+            return []; 
+          }
+        }
+        return val;
+      }, z.array(z.union([z.number(), z.string()])).optional()),
+      showtimes: z.preprocess((val) => {
+        if (typeof val === 'string') {
+          try {
+            return JSON.parse(val);
+          } catch {
+            return [];
+          }
+        }
+          return val;
+      },
+        // Define the expected structure for each showtime object
+        z.array(z.object({
+            venue_id: z.string().min(1, 'Venue ID for showtime is required'),
+            showtime_date: z.string().min(1, 'Showtime date is required'),
+            showtime_time: z.string().min(1, 'Showtime time is required'),
+        })).optional()
+    ),
+      start_date: z.string().min(1, 'Start date is required'),
+      end_date: z.string().min(1, 'End date is required'),
     });
 
   const result = schema.safeParse(req.body);
@@ -85,7 +114,7 @@ const createMovieEvent = async (req: Request, res: Response) => {
     });
   }
 
-  const { user_id, name, description, trailer_links } = result.data;
+  const { user_id, name, description, trailer_links,venues, showtimes, start_date, end_date } = result.data;
 
   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
   const featuredImageFile = files?.featured_image?.[0];
@@ -132,8 +161,10 @@ const createMovieEvent = async (req: Request, res: Response) => {
   while (await prisma.event.findUnique({ where: { slug: uniqueSlug } })) {
     uniqueSlug = `${baseSlug}-${suffix++}`;
   }
+  const parsedStartDate = new Date(start_date);
+  const parsedEndDate = new Date(end_date);
   try {
-    await prisma.event.create({
+    const newEvent = await prisma.event.create({
       data: {
         user_id: parseInt(user_id),
         event_type: 'movie',
@@ -142,9 +173,52 @@ const createMovieEvent = async (req: Request, res: Response) => {
         description: description || null, 
         featured_image: featuredImageUrl, 
         trailer_links: trailer_links,
+        start_date: parsedStartDate,
+        end_date: parsedEndDate,
         status: 'active', 
       },
     });
+
+    if (venues && venues.length > 0) {
+      const vennuesConnects = venues.map((venuesInput) => {
+        return {
+            event_id: newEvent.id,
+            venue_id: venuesInput,
+        };
+
+      }).filter(Boolean);
+
+      if (vennuesConnects.length > 0) {
+        await prisma.eventVenue.createMany({
+          data: vennuesConnects,
+        });
+      }
+    }
+    if (showtimes && showtimes.length > 0) {
+      const showtimesData = showtimes.map((showtimeInput) => {
+
+        const combinedDateTimeString = `${showtimeInput.showtime_date}T${showtimeInput.showtime_time}:00`; 
+        const showtimeDateTime = new Date(combinedDateTimeString);
+
+        const parsedShowtimeDate = new Date(showtimeInput.showtime_date + 'T00:00:00Z');
+        const [hours, minutes, seconds] = showtimeInput.showtime_time.split(':').map(Number);
+        const parsedShowtimeTime = new Date('2000-01-01T00:00:00Z'); 
+        parsedShowtimeTime.setUTCHours(hours, minutes, seconds || 0, 0);
+
+        return {
+          event_id: newEvent.id,
+          venue_id: parseInt(showtimeInput.venue_id),
+          showtime_date: parsedShowtimeDate,
+          showtime_time: parsedShowtimeTime,
+        };
+      }).filter(Boolean);
+
+      if (showtimesData.length > 0) {
+        await prisma.eventShowtime.createMany({
+          data: showtimesData,
+        });
+      }
+    }
     return res.status(201).json({ message: 'Event created successfully'});
   } catch (error) {
     console.error('Error creating  event:', error);
@@ -168,6 +242,28 @@ const createDramaEvent = async (req: Request, res: Response) => {
         }
         return val;
       }, z.array(z.union([z.string(), z.number()])).optional()),
+      venues: z.preprocess((val) => {
+        if (typeof val === 'string') {
+          try {
+            return JSON.parse(val); 
+          } catch {
+            return []; 
+          }
+        }
+        return val;
+      }, z.array(z.union([z.number(), z.string()])).optional()),
+      showtimes: z.preprocess((val) => {
+        if (typeof val === 'string') {
+          try {
+            return JSON.parse(val); 
+          } catch {
+            return []; 
+          }
+        }
+        return val;
+      }, z.array(z.union([z.number(), z.string()])).optional()),
+      start_date: z.string().min(1, 'Start date is required'),
+      end_date: z.string().min(1, 'End date is required'),
     });
 
   const result = schema.safeParse(req.body);
@@ -179,7 +275,7 @@ const createDramaEvent = async (req: Request, res: Response) => {
     });
   }
 
-  const { user_id, name, description, artists } = result.data;
+  const { user_id, name, description, artists,venues, showtimes, start_date, end_date } = result.data;
 
   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
   const featuredImageFile = files?.featured_image?.[0];
@@ -228,6 +324,9 @@ const createDramaEvent = async (req: Request, res: Response) => {
     uniqueSlug = `${baseSlug}-${suffix++}`;
   }
 
+  const parsedStartDate = new Date(start_date);
+  const parsedEndDate = new Date(end_date);
+
   try {
     const newEvent = await prisma.event.create({
       data: {
@@ -237,6 +336,8 @@ const createDramaEvent = async (req: Request, res: Response) => {
         slug: uniqueSlug,
         description: description || null,
         featured_image: featuredImageUrl,
+        start_date: parsedStartDate,
+        end_date: parsedEndDate,
         status: 'active',
       },
     });
@@ -260,6 +361,37 @@ const createDramaEvent = async (req: Request, res: Response) => {
       if (artistConnects.length > 0) {
         await prisma.eventArtist.createMany({
           data: artistConnects,
+        });
+      }
+    }
+
+    if (venues && venues.length > 0) {
+      const vennuesConnects = venues.map((venuesInput) => {
+        return {
+            event_id: newEvent.id,
+            venue_id: venuesInput,
+        };
+
+      }).filter(Boolean);
+
+      if (vennuesConnects.length > 0) {
+        await prisma.eventVenue.createMany({
+          data: vennuesConnects,
+        });
+      }
+    }
+    if (showtimes && showtimes.length > 0) {
+      const showtimesConnects = showtimes.map((showtimesInput) => {
+        return {
+            event_id: newEvent.id,
+            showtime: showtimesInput,
+        };
+
+      }).filter(Boolean);
+
+      if (showtimesConnects.length > 0) {
+        await prisma.eventShowtime.createMany({
+          data: showtimesConnects,
         });
       }
     }
@@ -994,6 +1126,28 @@ const createComedyEvent = async (req: Request, res: Response) => {
         }
         return val;
       }, z.array(z.union([z.string(), z.number()])).optional()),
+      venues: z.preprocess((val) => {
+        if (typeof val === 'string') {
+          try {
+            return JSON.parse(val); 
+          } catch {
+            return []; 
+          }
+        }
+        return val;
+      }, z.array(z.union([z.number(), z.string()])).optional()),
+      showtimes: z.preprocess((val) => {
+        if (typeof val === 'string') {
+          try {
+            return JSON.parse(val); 
+          } catch {
+            return []; 
+          }
+        }
+        return val;
+      }, z.array(z.union([z.number(), z.string()])).optional()),
+      start_date: z.string().min(1, 'Start date is required'),
+      end_date: z.string().min(1, 'End date is required'),
     });
 
   const result = schema.safeParse(req.body);
@@ -1005,7 +1159,7 @@ const createComedyEvent = async (req: Request, res: Response) => {
     });
   }
 
-  const { user_id, name, description, performers } = result.data;
+  const { user_id, name, description, performers, venues, showtimes, start_date, end_date } = result.data;
 
   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
   const featuredImageFile = files?.featured_image?.[0];
@@ -1053,7 +1207,8 @@ const createComedyEvent = async (req: Request, res: Response) => {
   while (await prisma.event.findUnique({ where: { slug: uniqueSlug } })) {
     uniqueSlug = `${baseSlug}-${suffix++}`;
   }
-
+  const parsedStartDate = new Date(start_date);
+  const parsedEndDate = new Date(end_date);
   try {
     const newEvent = await prisma.event.create({
       data: {
@@ -1064,6 +1219,8 @@ const createComedyEvent = async (req: Request, res: Response) => {
         description: description || null,
         featured_image: featuredImageUrl,
         status: 'active',
+        start_date: parsedStartDate,
+        end_date: parsedEndDate,
       },
     });
 
@@ -1081,6 +1238,37 @@ const createComedyEvent = async (req: Request, res: Response) => {
       if (performerConnects.length > 0) {
         await prisma.eventPerformer.createMany({
           data: performerConnects,
+        });
+      }
+    }
+
+     if (venues && venues.length > 0) {
+      const vennuesConnects = venues.map((venuesInput) => {
+        return {
+            event_id: newEvent.id,
+            venue_id: venuesInput,
+        };
+
+      }).filter(Boolean);
+
+      if (vennuesConnects.length > 0) {
+        await prisma.eventVenue.createMany({
+          data: vennuesConnects,
+        });
+      }
+    }
+    if (showtimes && showtimes.length > 0) {
+      const showtimesConnects = showtimes.map((showtimesInput) => {
+        return {
+            event_id: newEvent.id,
+            showtime: showtimesInput,
+        };
+
+      }).filter(Boolean);
+
+      if (showtimesConnects.length > 0) {
+        await prisma.eventShowtime.createMany({
+          data: showtimesConnects,
         });
       }
     }

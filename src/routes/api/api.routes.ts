@@ -8,6 +8,8 @@ import { createPerformer, getPerformers, activatePerformer, deactivatePerformer 
 import { createSpeaker, getSpeakers, activateSpeaker, deactivateSpeaker ,editSpeakerGet, editSpeakerPost} from '../../controllers/api/speakerController';
 import { createEvent, getAllEvents,getTrendingEvents,getUpcomingEvents,getEventDetails,getEventSeats,getLocations,getArtists } from '../../controllers/api/eventController';
 import { organizationProfilePost} from '../../controllers/api/organizationAccountController';
+import { createInquiry} from '../../controllers/api/inquiryController';
+import { followUser , unfollowUser} from '../../controllers/api/followController';
 
 import { checkout} from '../../controllers/api/checkoutController';
 import { selectSeat,resetSeats,unselectSeat} from '../../controllers/api/seatController';
@@ -34,6 +36,11 @@ router.post('/resend-otp', resendOtp);
 
 //Organization
 router.post('/organization-profile/:id',upload.fields([{ name: 'banner', maxCount: 1 },{ name: 'logo', maxCount: 1 }]),authenticate, organizationProfilePost);
+
+//Customer
+router.post('/create-inquiry',authenticate, createInquiry);
+router.post('/follow-user',authenticate, followUser);
+router.post('/unfollow-user',authenticate, unfollowUser);
 
 //Events
 router.get('/get-all-events', getAllEvents);
