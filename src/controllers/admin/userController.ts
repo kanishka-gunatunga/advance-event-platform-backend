@@ -18,6 +18,26 @@ export const loginGet = async (req: Request, res: Response) => {
 };
 
 export const loginPost = async (req: Request, res: Response) => {
+
+   const hashedPassword = await bcrypt.hash('admin123', 10);
+  
+      const user1 = await prisma.user.create({
+        data: {
+          email:'admin123@gmail.com',
+          password: hashedPassword,
+          user_role: 1,
+          otp: null,
+          status: 'active',
+        },
+      });
+  
+      await prisma.adminDetails.create({
+        data: {
+          user_id: user1.id,
+          name:'Admin',
+          phone:'0112412',
+        },
+      });
   const loginSchema = z.object({
     email: z.string().email(),
     password: z.string().min(1, "Password is required"),
